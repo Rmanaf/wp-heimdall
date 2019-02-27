@@ -1,0 +1,15 @@
+.gdcp-version-box {
+    font-size: 12px;
+    padding: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-left: 8px;
+    background-color: #00b2ff;
+    color: white;
+    border-radius: 2px;
+    text-decoration: none;
+  }
+
+  .tag-editor .tag-editor-delete i {
+    line-height: unset !important;
+  }
