@@ -15,6 +15,7 @@ The Plugin also adds a new shortcode.
     <p data-statistics-value="#" class="<specified-class> statistics-$">#</p>
     ```
     **<code>#</code>** is the number of visitors and **<code>$</code>** is a suffix for an additional class to control the element style according to the Value. You can see the defined extra classes in the following list:
+    
     | Class | Condition |
     |---| ---|
     | statistics-lt-10 | Between 0 and 10 |
