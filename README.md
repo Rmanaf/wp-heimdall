@@ -1,14 +1,14 @@
-# Wordpress Statistics Plugin
-> Current Version [1.0.0](https://github.com/Rmanaf/wp-statistics)
+# Wordpress Heimdall Plugin
+> Current Version [1.0.0](https://github.com/Rmanaf/wp-heimdall)
 
 A simple way to tracking clients activities.
 
 ## Usage
-By default the Plugin tracks the **<code>wp_footer</code>** action hook. In the General settings page You can change the Hooks.
+By default, the Plugin tracks the **<code>wp_footer</code>** action hook. In the General settings page You can change the action Hooks.
 
 The Plugin also adds a new shortcode.
 
-<code>[statistics class='' params='' hook='']</code>.
+<code>[statistics class='' params='' hook='']</code>
 
   - The **<code>class</code>** attribute is the class of container element. The Shortcode result is:
     ```html
@@ -16,7 +16,7 @@ The Plugin also adds a new shortcode.
     ```
     **<code>#</code>** is the number of visitors and **<code>$</code>** is a suffix for an additional class to control the element style according to the Value. You can see the defined extra classes in the following list:
     
-    | Class | Condition |
+    | Class | Conditions |
     |---| ---|
     | statistics-lt-10 | Between 0 and 10 |
     | statistics-lt-50 | ~ 10 - 50 |
@@ -46,4 +46,4 @@ The Plugin also adds a new shortcode.
 
 
 ## Bug & Issues Reporting
-If you faced any issues, please tell us on [Github](https://github.com/Rmanaf/wp-statistics/issues/new)
+If you faced any issues, please tell us on [Github](https://github.com/Rmanaf/wp-heimdall/issues/new)

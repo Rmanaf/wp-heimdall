@@ -58,9 +58,9 @@
  */
 
 
-if (!class_exists('WP_Statistics_Query_Builder')) {
+if (!class_exists('WP_Heimdall_Query_Builder')) {
 
-    class WP_Statistics_Query_Builder
+    class WP_Heimdall_Query_Builder
     {
 
         private $query = "";

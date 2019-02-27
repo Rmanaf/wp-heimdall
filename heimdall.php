@@ -52,14 +52,14 @@
  */
 
  /*
-    Plugin Name: Statistics
-    Plugin URI: https://wordpress.org/plugins/statistics
+    Plugin Name: Heimdall
+    Plugin URI: https://wordpress.org/plugins/heimdall
     Description: A simple way to tracking clients activities.
     Version: 1.0.0
     Author: Arman Afzal
     Author URI: https://github.com/Rmanaf
     License: Apache License, Version 2.0
-    Text Domain: statistics
+    Text Domain: heimdall
  */
 
 /**
@@ -72,12 +72,12 @@ defined('ABSPATH') or die;
 
 require_once __DIR__ . "/includes/query-builder.php";
 
-if (!class_exists('WP_Statistics_Plugin')) {
+if (!class_exists('WP_Heimdall_Plugin')) {
 
-    class WP_Statistics_Plugin
+    class WP_Heimdall_Plugin
     {
 
-        private static $text_domain = 'statistics';
+        private static $text_domain = 'heimdall';
 
         private static $db_version = '1.0.0';
 
@@ -124,7 +124,7 @@ if (!class_exists('WP_Statistics_Plugin')) {
 
 
 
-            $hooks = explode(',' , get_option( 'wp_dcp_statistics_active_hooks', implode(',', self::$hit_hooks)));
+            $hooks = explode(',' , get_option( 'wp_dcp_heimdall_active_hooks', implode(',', self::$hit_hooks)));
 
             foreach($hooks as $h)
             {
@@ -164,43 +164,43 @@ if (!class_exists('WP_Statistics_Plugin')) {
 
             }
 
-            register_setting($group, 'wp_dcp_statistics_active_hooks', ['default' => '']);
-            register_setting($group, 'wp_dcp_statistics_post_position', ['default' => 0]);
-            register_setting($group, 'wp_dcp_statistics_page_position', ['default' => 0]);
+            register_setting($group, 'wp_dcp_heimdall_active_hooks', ['default' => '']);
+            register_setting($group, 'wp_dcp_heimdall_post_position', ['default' => 0]);
+            register_setting($group, 'wp_dcp_heimdall_page_position', ['default' => 0]);
 
             // settings section
             add_settings_section(
-                'wp_dcp_statistics_plugin',
-                __('Statistics', self::$text_domain) . "<span class=\"gdcp-version-box wp-ui-notification\">" . $this->get_version() . "<span>",
+                'wp_dcp_heimdall_plugin',
+                __('Heimdall', self::$text_domain) . "<span class=\"gdcp-version-box wp-ui-notification\">" . $this->get_version() . "<span>",
                 [&$this, 'settings_section_cb'],
                 $group
             );
 
             add_settings_field(
-                'wp_dcp_statistics_active_hooks',
+                'wp_dcp_heimdall_active_hooks',
                 "Hooks",
                 [&$this, 'settings_field_cb'],
                 $group,
-                'wp_dcp_statistics_plugin',
-                ['label_for' => 'wp_dcp_statistics_active_hooks']
+                'wp_dcp_heimdall_plugin',
+                ['label_for' => 'wp_dcp_heimdall_active_hooks']
             );
 
             add_settings_field(
-                'wp_dcp_statistics_post_position',
+                'wp_dcp_heimdall_post_position',
                 "The Number of Visitors",
                 [&$this, 'settings_field_cb'],
                 $group,
-                'wp_dcp_statistics_plugin',
-                ['label_for' => 'wp_dcp_statistics_post_position']
+                'wp_dcp_heimdall_plugin',
+                ['label_for' => 'wp_dcp_heimdall_post_position']
             );
 
             add_settings_field(
-                'wp_dcp_statistics_page_position',
+                'wp_dcp_heimdall_page_position',
                 "",
                 [&$this, 'settings_field_cb'],
                 $group,
-                'wp_dcp_statistics_plugin',
-                ['label_for' => 'wp_dcp_statistics_page_position']
+                'wp_dcp_heimdall_plugin',
+                ['label_for' => 'wp_dcp_heimdall_page_position']
             );
 
         }
@@ -216,7 +216,7 @@ if (!class_exists('WP_Statistics_Plugin')) {
             $option = '';
 
             if(is_single()){
-                $option = 'wp_dcp_statistics_post_position';
+                $option = 'wp_dcp_heimdall_post_position';
             }
 
             if(empty($option))
@@ -245,11 +245,11 @@ if (!class_exists('WP_Statistics_Plugin')) {
             $option = '';
 
             if(is_page()){
-                $option = 'wp_dcp_statistics_page_position';
+                $option = 'wp_dcp_heimdall_page_position';
             }
 
             if(is_single()){
-                $option = 'wp_dcp_statistics_post_position';
+                $option = 'wp_dcp_heimdall_post_position';
             }
 
             if(empty($option))
@@ -277,8 +277,8 @@ if (!class_exists('WP_Statistics_Plugin')) {
         {
         
             if(current_user_can( 'administrator' )){
-
-                wp_add_dashboard_widget('dcp_statistics', 'Statistics', [$this,'admin_weekly_report_chart']);
+                
+                wp_add_dashboard_widget('dcp_heimdall_statistics', 'Statistics', [$this,'admin_weekly_report_chart']);
 
             }
 
@@ -329,7 +329,7 @@ if (!class_exists('WP_Statistics_Plugin')) {
                 'hook'  => ''
             ], $atts));
 
-            $query_builder = new WP_Statistics_Query_Builder(
+            $query_builder = new WP_Heimdall_Query_Builder(
                 self::table_name() , 
                 explode(',', $params) ,
                 $hook
@@ -401,24 +401,24 @@ if (!class_exists('WP_Statistics_Plugin')) {
         {
             switch ($args['label_for']) {
 
-                case 'wp_dcp_statistics_active_hooks':
+                case 'wp_dcp_heimdall_active_hooks':
 
-                    $hooks = get_option('wp_dcp_statistics_active_hooks', implode(',' , self::$hit_hooks));
+                    $hooks = get_option('wp_dcp_heimdall_active_hooks', implode(',' , self::$hit_hooks));
 
                     ?>
-                        <textarea data-placeholder="Enter Hooks:" class="large-text code" id="wp_dcp_statistics_active_hooks" name="wp_dcp_statistics_active_hooks"><?php echo $hooks; ?></textarea>   
+                        <textarea data-placeholder="Enter Hooks:" class="large-text code" id="wp_dcp_heimdall_active_hooks" name="wp_dcp_heimdall_active_hooks"><?php echo $hooks; ?></textarea>   
                     <?php
                     break;
 
-                case 'wp_dcp_statistics_page_position':
+                case 'wp_dcp_heimdall_page_position':
                 
-                    $pos = get_option('wp_dcp_statistics_page_position', 0);
+                    $pos = get_option('wp_dcp_heimdall_page_position', 0);
 
                     ?>
 
                     <span><?php _e('Page', self::$text_domain) ?></span>
                     
-                    <select name="wp_dcp_statistics_page_position" id="wp_dcp_statistics_page_position" >
+                    <select name="wp_dcp_heimdall_page_position" id="wp_dcp_heimdall_page_position" >
                         <option <?php selected( $pos , 0); ?> value="0"> <?php _e('— Do not show —', self::$text_domain); ?>
                         <option <?php selected( $pos , 1); ?> value="1"> <?php _e('After the Content', self::$text_domain); ?>
                         <option <?php selected( $pos , 2); ?> value="2"> <?php _e('Before the Content', self::$text_domain); ?>
@@ -427,15 +427,15 @@ if (!class_exists('WP_Statistics_Plugin')) {
                     <?php
                     break;
 
-                case 'wp_dcp_statistics_post_position':
+                case 'wp_dcp_heimdall_post_position':
                 
-                    $pos = get_option('wp_dcp_statistics_post_position', 0);
+                    $pos = get_option('wp_dcp_heimdall_post_position', 0);
 
                     ?>
 
                     <span><?php _e('Post', self::$text_domain) ?></span>
 
-                    <select name="wp_dcp_statistics_post_position" id="wp_dcp_statistics_post_position" >
+                    <select name="wp_dcp_heimdall_post_position" id="wp_dcp_heimdall_post_position" >
                         <option <?php selected( $pos , 0); ?> value="0"> <?php _e('— Do not show —', self::$text_domain); ?>
                         <option <?php selected( $pos , 1); ?> value="1"> <?php _e('After the Content', self::$text_domain); ?>
                         <option <?php selected( $pos , 2); ?> value="2"> <?php _e('Before the Content', self::$text_domain); ?>
@@ -458,7 +458,7 @@ if (!class_exists('WP_Statistics_Plugin')) {
         public static function table_name()
         {
 
-            return 'dcp_statistics';
+            return 'dcp_heimdall';
 
         }
 
@@ -472,7 +472,7 @@ if (!class_exists('WP_Statistics_Plugin')) {
 
             global $wpdb;
 
-            $dbv = get_option('wp_dcp_statistics_db_version', '');
+            $dbv = get_option('wp_dcp_heimdall_db_version', '');
 
             if ($dbv == self::$db_version) {
 
@@ -500,7 +500,7 @@ if (!class_exists('WP_Statistics_Plugin')) {
 
             dbDelta($sql);
 
-            update_option('wp_dcp_statistics_db_version', self::$db_version);
+            update_option('wp_dcp_heimdall_db_version', self::$db_version);
             
 
         }
@@ -531,7 +531,7 @@ if (!class_exists('WP_Statistics_Plugin')) {
             wp_enqueue_script('dcp-tag-editor', plugins_url('assets/jquery.tag-editor.min.js', __FILE__), [], $ver, true);
 
 
-            $query_builder = new WP_Statistics_Query_Builder(self::table_name());
+            $query_builder = new WP_Heimdall_Query_Builder(self::table_name());
 
              // get GMT
              $cdate = current_time( 'mysql' , 1 );
@@ -682,4 +682,4 @@ if (!class_exists('WP_Statistics_Plugin')) {
 
 }
 
-$STATISTICS_PLUGIN_INSTANCE = new WP_Statistics_Plugin();
+$HEIMDALL_PLUGIN_INSTANCE = new WP_Heimdall_Plugin();

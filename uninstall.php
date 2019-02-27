@@ -61,10 +61,10 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     die;
 }
 
-delete_option('wp_dcp_statistics_active_hooks');
+delete_option('wp_dcp_heimdall_active_hooks');
 
-delete_option('wp_dcp_statistics_db_version');
+delete_option('wp_dcp_heimdall_db_version');
 
-delete_option('wp_dcp_statistics_post_position');
+delete_option('wp_dcp_heimdall_post_position');
 
-delete_option('wp_dcp_statistics_page_position');
+delete_option('wp_dcp_heimdall_page_position');
