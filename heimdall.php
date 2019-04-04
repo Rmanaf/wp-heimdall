@@ -53,7 +53,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             'Comment'
         ];
 
-        private static $query_params = [  'unique',   'today', 'visitors',  'network' ];
+        private static $query_params = ['unique',   'today', 'visitors',  'network' ];
 
         private static $styles = [ 'lt-10',  'lt-50', 'lt-100', 'lt-500',  'gt-500',  'gt-1k' , 'gt-5k' , 'em-10k' , 'em-1m' , 'em-5m' ];
 
@@ -423,7 +423,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
         public static function table_name()
         {
 
-            return 'dcp_heimdall';
+            return 'dcp_heimdall_activities';
 
         }
 
@@ -453,7 +453,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                 id mediumint(9) NOT NULL AUTO_INCREMENT,
                 blog smallint NOT NULL,
                 time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-                ip tinytext NOT NULL,
+                ip tinytext,
                 page smallint,
                 type smallint,
                 user smallint,
