@@ -41,7 +41,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
         private static $text_domain = 'heimdall';
 
-        private static $db_version = '1.0.0';
+        private static $db_version = '0.9.0';
 
         private static $content_type = [
             'Undefined',
