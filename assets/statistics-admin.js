@@ -2,38 +2,37 @@
 
     $(document).ready(() => {
 
-        $active_hooks = $('#wp_dcp_statistics_active_hooks');
-
-        $active_hooks.tagEditor({
-            placeholder: $active_hooks.data('placeholder') || ''
-        });
-
         var ctx = $("#statisticsChart")[0];
 
+        var yarray = [0,0,0,0,0,0,0];
+        var zarray = [0,0,0,0,0,0,0];
+        var warray = [0,0,0,0,0,0,0];
+
+        statistics_data['visitors'].forEach((e,i)=>{
+            var ind = parseInt(e['x']);
+            yarray[ind] = parseInt(e['y']);
+            zarray[ind] = parseInt(e['z']);
+            warray[ind] = parseInt(e['w']);
+        });
+        
         var dtset = [{
             label: 'Unique Visitors',
             backgroundColor: '#f18226',
             stack: 'Stack 0',
-            data: statistics_data['visitors'].map((el) => {
-                return { x: el['x'], y: el['y'] };
-            })
+            data: yarray
         }, {
             label: 'Total',
             backgroundColor: '#7bc0f7',
             stack: 'Stack 1',
-            data: statistics_data['visitors'].map((el) => {
-                return { x: el['x'], y: el['z'] };
-            })
+            data: zarray
         }];
 
-        if (statistics_data['is_multisite']) {
+        if (statistics_data['is_multisite'] == '1') {
             dtset.push({
                 label: 'This Blog',
                 backgroundColor: '#ffdb69',
                 stack: 'Stack 2',
-                data: statistics_data['visitors'].map((el) => {
-                    return { x: el['x'], y: el['w'] };
-                })
+                data: warray
             });
         }
 

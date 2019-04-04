@@ -16,57 +16,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * 
- * Third Party Licenses :
- * 
- * tagEditor :
- * 
- * MIT License
- *
- * 
- * 
- * Chart.js :
- * 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2018 Chart.js Contributors
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
  */
 
  /*
     Plugin Name: Heimdall
     Plugin URI: https://wordpress.org/plugins/heimdall
     Description: A simple way to tracking clients activities.
-    Version: 1.0.0
+    Version: 1.1.1
     Author: Arman Afzal
     Author URI: https://github.com/Rmanaf
     License: Apache License, Version 2.0
     Text Domain: heimdall
  */
 
-/**
- * @author Arman Afzal <rman.afzal@gmail.com>
- * @package WP_Divan_Control_Panel
- * @version 1.0.0
- */
 
 defined('ABSPATH') or die;
 
@@ -326,12 +288,13 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             extract(shortcode_atts( [
                 'class'  => '',
                 'params' => 'unique', // by default get unique IP
-                'hook'  => ''
+                'hook'  => '',
+                'tag'   => 'p'
             ], $atts));
 
             $query_builder = new WP_Heimdall_Query_Builder(
                 self::table_name() , 
-                explode(',', $params) ,
+                explode(',', strtolower(trim($params))) ,
                 $hook
             );
 
@@ -339,7 +302,9 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
             $style = $this->get_style($count);
 
-            return "<p data-statistics-value=\"$count\" class=\"$class statistics-$style\">$count</p>";
+            $tag = strtolower(trim($tag));
+
+            return "<$tag data-statistics-value=\"$count\" class=\"$class statistics-$style\">$count</$tag>";
 
         }
 
@@ -517,37 +482,48 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
             $ver = $this->get_version();
 
-            wp_enqueue_script( 'dcp-chart-js-bundle', plugins_url( '/assets/chart.bundle.min.js', __FILE__ ), [], $ver, false);
+            $screen = get_current_screen();
 
-            wp_enqueue_script( 'dcp-chart-js', plugins_url( '/assets/chart.min.js', __FILE__ ), [], $ver, false);
+            if(current_user_can( 'administrator' ) && $screen->id  == 'dashboard' )
+            {
 
-            wp_enqueue_script( 'statistics-admin', plugins_url( '/assets/statistics-admin.js', __FILE__ ), ['jquery'], $ver, true);
+                $query_builder = new WP_Heimdall_Query_Builder(self::table_name());
 
-    
-            //settings
-            wp_enqueue_style('dcp-tag-editor', plugins_url('assets/jquery.tag-editor.css', __FILE__), [], $ver, 'all');
+                // get GMT
+                $cdate = current_time( 'mysql' , 1 );
 
-            wp_enqueue_script('dcp-caret', plugins_url('assets/jquery.caret.min.js', __FILE__), ['jquery'], $ver, true);
-            wp_enqueue_script('dcp-tag-editor', plugins_url('assets/jquery.tag-editor.min.js', __FILE__), [], $ver, true);
+                // start from 6 days ago
+                $start = new DateTime($cdate);
+                $start->sub(new DateInterval('P6D')); 
+
+                // today
+                $end = new DateTime($cdate);
+
+                
+                wp_enqueue_script( 'dcp-chart-js-bundle', plugins_url( '/assets/chart.bundle.min.js', __FILE__ ), [], $ver, false);
+                wp_enqueue_script( 'dcp-chart-js', plugins_url( '/assets/chart.min.js', __FILE__ ), [], $ver, false);
+                wp_enqueue_script( 'statistics-admin', plugins_url( '/assets/statistics-admin.js', __FILE__ ), ['jquery'], $ver, true);    
+            
+                wp_localize_script( 'statistics-admin', 'statistics_data', [
+                    'is_multisite' => is_multisite(),
+                    'visitors' => $wpdb->get_results($query_builder->get_chart_query($start , $end), ARRAY_A )
+                ]);
 
 
-            $query_builder = new WP_Heimdall_Query_Builder(self::table_name());
+            }
 
-             // get GMT
-             $cdate = current_time( 'mysql' , 1 );
+            if(in_array($screen->id , ['options-general', 'settings_page_dcp-settings'])){
 
-             // start from 6 days ago
-             $start = new DateTime($cdate);
-             $start->sub(new DateInterval('P6D')); 
+                //settings
+                wp_enqueue_style('dcp-tag-editor', plugins_url('assets/jquery.tag-editor.css', __FILE__), [], $ver, 'all');
+                wp_enqueue_style('heimdall-settings', plugins_url('assets/heimdall-settings.css', __FILE__), [], $ver, 'all');
 
-             // today
-             $end = new DateTime($cdate);
+                wp_enqueue_script('dcp-caret', plugins_url('assets/jquery.caret.min.js', __FILE__), ['jquery'], $ver, true);
+                wp_enqueue_script('dcp-tag-editor', plugins_url('assets/jquery.tag-editor.min.js', __FILE__), [], $ver, true);
+                wp_enqueue_script('heimdall-settings', plugins_url('assets/heimdall-settings.js', __FILE__), [], $ver, true);
 
-            wp_localize_script( 'statistics-admin', 'statistics_data', [
-                'is_multisite' => is_multisite(),
-                'visitors' => $wpdb->get_results($query_builder->get_chart_query($start , $end), ARRAY_A )
-            ]);
-
+            }
+            
 
         }
 

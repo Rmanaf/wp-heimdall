@@ -1,5 +1,5 @@
 # Wordpress Heimdall Plugin
-> Current Version [1.0.0](https://github.com/Rmanaf/wp-heimdall)
+> Current Version [1.1.1](https://github.com/Rmanaf/wp-heimdall)
 
 A simple way to tracking clients activities.
 
