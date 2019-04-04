@@ -605,6 +605,8 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                 ]
             );
 
+            echo $wpdb->last_error;
+
         }
 
         private function get_style($v){
