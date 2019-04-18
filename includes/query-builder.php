@@ -126,8 +126,8 @@ if (!class_exists('WP_Heimdall_Query_Builder')) {
 
             $blog_id = get_current_blog_id();
 
-            return "SELECT meta x,
-                    COUNT(DISTINCT meta) y
+            return "SELECT meta,
+                    COUNT(meta) y
                     FROM $this->table_name
                     WHERE (time BETWEEN '$start' AND '$end') AND blog='$blog_id'" ;
 
