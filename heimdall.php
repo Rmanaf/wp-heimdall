@@ -291,7 +291,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
         
             if(current_user_can( 'administrator' )){
                 
-                wp_add_dashboard_widget('dcp_heimdall_statistics', 'Statistics', [$this,'admin_weekly_report_chart']);
+                wp_add_dashboard_widget('dcp_heimdall_statistics', 'Statistics', [$this,'admin_dashboard_widget']);
 
             }
 
@@ -299,10 +299,10 @@ if (!class_exists('WP_Heimdall_Plugin')) {
         
 
         /**
-         * weekly report chart body
+         * report widget
          * @since 1.0.0
          */
-        public function admin_weekly_report_chart()
+        public function admin_dashboard_widget()
         {
 
             ?>
@@ -387,7 +387,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             <ul id="most-used-keywords" class="tags"></ul>
             <hr />
 
-            <h2>Weekly Report</h2>
+            <h2>Weekly report</h2>
             <div class="chart-container" style="position: relative; width:100%; height:300px;">
                 <canvas id="statisticsChart"></canvas>
             </div>
