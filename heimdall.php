@@ -41,7 +41,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
         private static $text_domain = 'heimdall';
 
-        private static $db_version = '0.9.0';
+        private static $db_version = '1.0.0';
 
         private static $content_type = [
             'Undefined',
@@ -181,18 +181,31 @@ if (!class_exists('WP_Heimdall_Plugin')) {
         public function pre_get_posts($query)
         {
 
+            global $wpdb;
+
             if( is_admin() )
             {
                 return;
             }
 
-
             if ( $query->is_search() && $query->is_main_query()) 
             {
 
-                $search = get_search_query();
+                $wpdb->insert(
+                    self::table_name(),
+                    [
+                        'time' => current_time('mysql' , 1),
+                        'ip' => $this->get_ip_address(),
+                        'page' => null,
+                        'type' => 4,
+                        'blog' => get_current_blog_id(),
+                        'user' => get_current_user_id(),
+                        'hook' => null,
+                        'meta' => esc_html( esc_sql( get_search_query() ) )
+                    ]
+                );
 
-                echo  $search;
+                echo $wpdb->last_error;
 
             }
 
@@ -488,7 +501,8 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                 page smallint,
                 type smallint,
                 user smallint,
-                hook tinytext NOT NULL,
+                hook tinytext,
+                meta tinytext,
                 PRIMARY KEY  (id)
                 ) $charset_collate;";
 
@@ -604,6 +618,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
              * type 1 is home page
              * type 2 is inner page
              * type 3 is post
+             * type 4 is search
              */
             if(is_home()){
 
@@ -632,7 +647,8 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                     'type' => $type,
                     'blog' => get_current_blog_id(),
                     'user' => get_current_user_id(),
-                    'hook' => current_filter()
+                    'hook' => current_filter(),
+                    'meta' => null
                 ]
             );
 
