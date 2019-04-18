@@ -298,9 +298,17 @@ if (!class_exists('WP_Heimdall_Plugin')) {
         public function admin_weekly_report_chart()
         {
 
-            echo '<div class="chart-container" style="position: relative; width:100%; height:300px;">
-                    <canvas id="statisticsChart"></canvas>
-                 </div>';
+            ?>
+
+            <div id="most-used-keywords"></div>
+
+            <div class="chart-container" style="position: relative; width:100%; height:300px;">
+
+                <canvas id="statisticsChart"></canvas>
+
+            </div>
+
+            <?php
 
         }
 
@@ -551,8 +559,11 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             
                 wp_localize_script( 'statistics-admin', 'statistics_data', [
                     'is_multisite' => is_multisite(),
-                    'visitors' => $wpdb->get_results($query_builder->get_chart_query($start , $end), ARRAY_A )
+                    'visitors' => $wpdb->get_results($query_builder->get_chart_query($start , $end), ARRAY_A ),
+                    'keywords' => $wpdb->get_results($query_builder->get_most_used_keywords_query($start , $end), ARRAY_A)
                 ]);
+
+                echo $wpdb->last_error;
 
 
             }

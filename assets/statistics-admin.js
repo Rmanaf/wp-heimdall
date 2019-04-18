@@ -1,8 +1,22 @@
-; (function ($) {
+; (($) => {
+    "use strict";
 
     $(document).ready(() => {
 
+
+        var $muk =  $('#"most-used-keywords')
+     
+        statistics_data['keywords'].forEach((e,i)=>{
+
+            $('<span>').text(e['x']).attr('data-x' , e['y']);
+            
+
+        });
+
+
+
         var ctx = $("#statisticsChart")[0];
+
 
         var yarray = [0,0,0,0,0,0,0];
         var zarray = [0,0,0,0,0,0,0];

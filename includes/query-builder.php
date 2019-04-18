@@ -118,6 +118,21 @@ if (!class_exists('WP_Heimdall_Query_Builder')) {
 
         }
 
+        public function get_most_used_keywords_query($start , $end)
+        {
+            // convert dates to mysql format
+            $start = $start->format('Y-m-d H:i:s');
+            $end   = $end->format('Y-m-d H:i:s');
+
+            $blog_id = get_current_blog_id();
+
+            return "SELECT meta x,
+                    COUNT(DISTINCT meta) y
+                    FROM $this->table_name
+                    WHERE (time BETWEEN '$start' AND '$end') AND blog='$blog_id'" ;
+
+        }
+
         public function get_chart_query($start , $end){
 
             // convert dates to mysql format
@@ -133,8 +148,7 @@ if (!class_exists('WP_Heimdall_Query_Builder')) {
                 $extra_field
                 FROM $this->table_name
                 WHERE (time BETWEEN '$start' AND '$end')
-                GROUP BY x"
-            ;
+                GROUP BY x";
 
         }
 
