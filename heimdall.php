@@ -86,10 +86,14 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
             $hooks = explode(',' , get_option( 'wp_dcp_heimdall_active_hooks', ''));
 
+
+
             if(empty($hooks))
             {
+                print_r(self::$hit_hooks);
                 $hooks = self::$hit_hooks;
             }
+
 
             foreach($hooks as $h)
             {
