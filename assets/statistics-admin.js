@@ -4,7 +4,7 @@
     $(document).ready(() => {
 
 
-        var $muk =  $('#"most-used-keywords')
+        var $muk =  $('#most-used-keywords')
      
         statistics_data['keywords'].forEach((e,i)=>{
 
