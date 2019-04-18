@@ -383,11 +383,11 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
             </style>
 
-            <h2>Most used keywords</h2>
+            <h2><?php _e("Most used keywords" , self::$text_domain); ?></h2>
             <ul id="most-used-keywords" class="tags"></ul>
             <hr />
 
-            <h2>Weekly report</h2>
+            <h2><?php _e("Weekly report" , self::$text_domain); ?></h2>
             <div class="chart-container" style="position: relative; width:100%; height:300px;">
                 <canvas id="statisticsChart"></canvas>
             </div>
@@ -484,7 +484,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                             </label>
                         </th>
                         <td>
-                            <?php _e("<p>If you faced any issues, please tell us on <strong><a target=\"_blank\" href=\"https://github.com/Rmanaf/wp-statistics/issues/new\">Github</a></strong>"); ?>
+                            <?php _e("<p>If you faced any issues, please tell us on <strong><a target=\"_blank\" href=\"https://github.com/Rmanaf/wp-heimdall/issues/new\">Github</a></strong>"); ?>
                         </td>
                     </tr>
                 </tbody>
