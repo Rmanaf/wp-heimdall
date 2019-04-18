@@ -49,15 +49,15 @@
         },{
             label: 'Home Page',
             backgroundColor: '#ffe06a',
-            stack: 'Stack 2',
-            data: yarray
+            stack: 'Stack 3',
+            data: parray
         }];
 
         if (statistics_data['is_multisite'] == '1') {
             dtset.push({
                 label: 'This Blog',
                 backgroundColor: '#fd5a35',
-                stack: 'Stack 3',
+                stack: 'Stack 4',
                 data: warray
             });
         }

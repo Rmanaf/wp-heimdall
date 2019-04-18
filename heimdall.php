@@ -191,11 +191,18 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             if ( $query->is_search() && $query->is_main_query()) 
             {
 
+                $ip = $this->get_ip_address();
+
+                if($ip == null)
+                {
+                    $ip = 'unknown';
+                }
+
                 $wpdb->insert(
                     self::table_name(),
                     [
                         'time' => current_time('mysql' , 1),
-                        'ip' => $this->get_ip_address(),
+                        'ip' => $ip,
                         'page' => null,
                         'type' => 4,
                         'blog' => get_current_blog_id(),
@@ -726,11 +733,18 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
             }
 
+            $ip = $this->get_ip_address();
+
+            if($ip == null)
+            {
+                $ip = 'unknown';
+            }
+
             $wpdb->insert(
                 self::table_name(),
                 [
                     'time' => current_time('mysql' , 1),
-                    'ip' => $this->get_ip_address(),
+                    'ip' => $ip,
                     'page' => $page,
                     'type' => $type,
                     'blog' => get_current_blog_id(),
