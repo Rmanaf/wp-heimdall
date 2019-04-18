@@ -36,21 +36,21 @@
         
         var dtset = [{
             label: 'Total',
-            backgroundColor: '#7bc0f7',
-            stack: 'Stack 0',
+            backgroundColor: '#00325b',
+            stack: 'Stack 1',
             data: zarray
         },{
             label: 'Unique Visitors',
-            backgroundColor: '#f18226',
-            stack: 'Stack 0',
+            backgroundColor: '#005171',
+            stack: 'Stack 2',
             data: yarray
         }];
 
         if (statistics_data['is_multisite'] == '1') {
             dtset.push({
                 label: 'This Blog',
-                backgroundColor: '#ffdb69',
-                stack: 'Stack 0',
+                backgroundColor: '#fd5a35',
+                stack: 'Stack 3',
                 data: warray
             });
         }
@@ -75,7 +75,7 @@
                         stacked: true,
                     }],
                     yAxes: [{
-                        stacked: false
+                        stacked: true
                     }]
                 }
             }
