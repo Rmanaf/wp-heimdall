@@ -26,12 +26,14 @@
         var yarray = [0,0,0,0,0,0,0];
         var zarray = [0,0,0,0,0,0,0];
         var warray = [0,0,0,0,0,0,0];
+        var parray = [0,0,0,0,0,0,0];
 
         statistics_data['visitors'].forEach((e,i)=>{
             var ind = parseInt(e['x']);
             yarray[ind] = parseInt(e['y']);
             zarray[ind] = parseInt(e['z']);
             warray[ind] = parseInt(e['w']);
+            parray[ind] = parseInt(e['p']);
         });
         
         var dtset = [{
@@ -42,6 +44,11 @@
         },{
             label: 'Unique Visitors',
             backgroundColor: '#005171',
+            stack: 'Stack 2',
+            data: yarray
+        },{
+            label: 'Home Page',
+            backgroundColor: '#ffe06a',
             stack: 'Stack 2',
             data: yarray
         }];
