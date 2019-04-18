@@ -77,14 +77,19 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
             add_action( "wp_dashboard_setup", [$this, "wp_dashboard_setup"] );
 
+            add_action( 'pre_get_posts', [$this , 'pre_get_posts']);
 
 
             add_filter( "the_content" , [$this , 'filter_content']);
 
             add_filter( "the_excerpt" , [$this , 'filter_excerpt']);
+
            
 
             $hooks = get_option( 'wp_dcp_heimdall_active_hooks', '');
+
+
+           
 
             if(empty($hooks))
             {  
@@ -170,6 +175,26 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                 'wp_dcp_heimdall_plugin',
                 ['label_for' => 'wp_dcp_heimdall_page_position']
             );
+
+        }
+
+        public function pre_get_posts($query)
+        {
+
+            if( is_admin() )
+            {
+                return;
+            }
+
+
+            if ( $query->is_search() && $query->is_main_query()) 
+            {
+
+                $search = get_search_query();
+
+                echo  $search;
+
+            }
 
         }
 
