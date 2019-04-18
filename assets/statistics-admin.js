@@ -8,7 +8,13 @@
      
         statistics_data['keywords'].forEach((e,i)=>{
 
-            $('<span>').text(e['meta']).attr('data-count' , e['count']).addClass('tag').appendTo($muk);
+            var $meta = $('<li>')
+                .text(e['meta'])
+                .attr('data-count' , e['count'])
+                .addClass('tag')
+                .appendTo($muk);
+
+            var $count = $('<i>').text(e['count']).appendTo($meta);
             
         });
 
