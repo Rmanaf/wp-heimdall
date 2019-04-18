@@ -42,7 +42,7 @@
         }, {
             label: 'Total',
             backgroundColor: '#7bc0f7',
-            stack: 'Stack 1',
+            stack: 'Stack 0',
             data: zarray
         }];
 
@@ -50,7 +50,7 @@
             dtset.push({
                 label: 'This Blog',
                 backgroundColor: '#ffdb69',
-                stack: 'Stack 2',
+                stack: 'Stack 0',
                 data: warray
             });
         }
