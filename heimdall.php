@@ -350,20 +350,28 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                 }
 
                 .tag:hover {
-                    background-color: crimson;
+                    background-color: #2196f3;
                     color: white;
                 }
 
                 .tag:hover::after {
-                    border-left-color: crimson; 
+                    border-left-color: #2196f3; 
                 }
 
                 .tag i {
-                    padding:3px;
-                    background: #333;
+                    padding: 2px;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    background: #607d8b;
                     color: white;
-                    margin-left: 4px;
+                    margin-left: 8px;
                     margin-right: 4px;
+                    font-size: 10px;
+                    border-radius: 4px;
+                    text-align: center;
+                    text-decoration: none;
+                    font-weight: bold;
+                    font-style: normal;
                 }
 
             </style>
