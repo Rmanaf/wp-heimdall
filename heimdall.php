@@ -361,8 +361,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             </style>
 
             <h2>Most used keywords</h2>
-            <ul id="most-used-keywords" class="tags"></ul>
-            <br />
+            <div><ul id="most-used-keywords" class="tags"></ul></div>
             <hr />
 
             <h2>Weekly Report</h2>
