@@ -22,7 +22,7 @@
     Plugin Name: Heimdall
     Plugin URI: https://wordpress.org/plugins/heimdall
     Description: A simple way to tracking clients activities.
-    Version: 1.1.1
+    Version: 1.1.2
     Author: Arman Afzal
     Author URI: https://github.com/Rmanaf
     License: Apache License, Version 2.0
