@@ -129,7 +129,9 @@ if (!class_exists('WP_Heimdall_Query_Builder')) {
             return "SELECT COUNT(*) count, meta
                     FROM $this->table_name
                     WHERE type='4' AND blog='$blog_id' AND (time BETWEEN '$start' AND '$end')
-                    GROUP BY meta" ;
+                    GROUP BY meta
+                    ORDER BY count DESC
+                    LIMIT 30" ;
 
         }
 

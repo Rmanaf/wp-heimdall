@@ -311,10 +311,6 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                     float: left; 
                 }
 
-                .tags li i{
-                    display: none;
-                }
-
                 .tag {
                     background: #eee;
                     border-radius: 3px 0 0 3px;
@@ -361,17 +357,15 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                     border-left-color: crimson; 
                 }
 
-                .tag:hover i {
-                    display: block;
-                }
 
             </style>
 
-            <h3>Most used keywords</h3>
+            <h2>Most used keywords</h2>
             <ul id="most-used-keywords" class="tags"></ul>
+            <br />
             <hr />
 
-            <h3>Weekly Report</h3>
+            <h2>Weekly Report</h2>
             <div class="chart-container" style="position: relative; width:100%; height:300px;">
                 <canvas id="statisticsChart"></canvas>
             </div>
