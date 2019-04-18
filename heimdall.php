@@ -305,6 +305,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                     list-style: none;
                     margin: 0;
                     padding: 0;
+                    overflow: hidden;
                 }
 
                 .tags li {
@@ -357,11 +358,18 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                     border-left-color: crimson; 
                 }
 
+                .tag i {
+                    padding:3px;
+                    background: #333;
+                    color: white;
+                    margin-left: 4px;
+                    margin-right: 4px;
+                }
 
             </style>
 
             <h2>Most used keywords</h2>
-            <div><ul id="most-used-keywords" class="tags"></ul></div>
+            <ul id="most-used-keywords" class="tags"></ul>
             <hr />
 
             <h2>Weekly Report</h2>
