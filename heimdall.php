@@ -84,14 +84,13 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             add_filter( "the_excerpt" , [$this , 'filter_excerpt']);
            
 
-            $hooks = explode(',' , get_option( 'wp_dcp_heimdall_active_hooks', ''));
-
-            print_r($hooks);
+            $hooks = get_option( 'wp_dcp_heimdall_active_hooks', '');
 
             if(empty($hooks))
-            {
-                
+            {  
                 $hooks = self::$hit_hooks;
+            }else {
+                $hooks = explode(',' ,  $hooks );
             }
 
 
