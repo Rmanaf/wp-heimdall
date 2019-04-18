@@ -35,15 +35,15 @@
         });
         
         var dtset = [{
-            label: 'Unique Visitors',
-            backgroundColor: '#f18226',
-            stack: 'Stack 0',
-            data: yarray
-        }, {
             label: 'Total',
             backgroundColor: '#7bc0f7',
             stack: 'Stack 0',
             data: zarray
+        },{
+            label: 'Unique Visitors',
+            backgroundColor: '#f18226',
+            stack: 'Stack 0',
+            data: yarray
         }];
 
         if (statistics_data['is_multisite'] == '1') {
@@ -75,7 +75,7 @@
                         stacked: true,
                     }],
                     yAxes: [{
-                        stacked: true
+                        stacked: false
                     }]
                 }
             }
