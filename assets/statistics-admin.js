@@ -8,9 +8,8 @@
      
         statistics_data['keywords'].forEach((e,i)=>{
 
-            $('<span>').text(e['x']).attr('data-x' , e['y']);
+            $('<span>').text(e['x']).attr('data-x' , e['y']).appendTo($muk);
             
-
         });
 
 
