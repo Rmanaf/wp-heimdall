@@ -304,7 +304,6 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                 .tags {
                     list-style: none;
                     margin: 0;
-                    overflow: hidden; 
                     padding: 0;
                 }
 
@@ -312,7 +311,9 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                     float: left; 
                 }
 
-
+                .tags li i{
+                    display: none;
+                }
 
                 .tag {
                     background: #eee;
@@ -359,16 +360,20 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                 .tag:hover::after {
                     border-left-color: crimson; 
                 }
+
+                .tag:hover i {
+                    display: block;
+                }
+
             </style>
 
-            <h1>Most used keywords</h1>
+            <h3>Most used keywords</h3>
             <ul id="most-used-keywords" class="tags"></ul>
             <hr />
 
+            <h3>Weekly Report</h3>
             <div class="chart-container" style="position: relative; width:100%; height:300px;">
-
                 <canvas id="statisticsChart"></canvas>
-
             </div>
 
             <?php

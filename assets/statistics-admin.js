@@ -62,10 +62,6 @@
                 datasets: dtset
             },
             options: {
-                title: {
-                    display: true,
-                    text: 'Weekly Report'
-                },
                 tooltips: {
                     mode: 'index',
                     intersect: false,
