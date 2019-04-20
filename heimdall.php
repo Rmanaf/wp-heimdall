@@ -32,7 +32,9 @@
 
 defined('ABSPATH') or die;
 
+require_once __DIR__ . "/includes/commons.php";
 require_once __DIR__ . "/includes/query-builder.php";
+require_once __DIR__ . "/inclides/access,php";
 
 if (!class_exists('WP_Heimdall_Plugin')) {
 
@@ -68,6 +70,9 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             $this->check_db();
 
             
+            new WP_Access_Plugin();
+
+
             add_shortcode('statistics', [$this, 'statistics_shortcode']);
 
 
@@ -191,7 +196,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             if ( $query->is_search() && $query->is_main_query()) 
             {
 
-                $ip = $this->get_ip_address();
+                $ip = WP_Heimdall_Commons::get_ip_address();
 
                 if($ip == null)
                 {
@@ -405,7 +410,12 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
             $list[] = [
                 'template' => "[statistics class='' params='' hook='']",
-                'description' => __("Renders the number of visitors", self::$text_domain),
+                'description' => __("Renders the number of visitors", self::$text_domain)
+            ];
+
+            $list[] = [
+                'template' => "[access ip='' error='' before='' after='' die='']",
+                'description' => __("Restricts access to a page or a part of it according to the client's IP.", self::$text_domain)
             ];
 
             return $list;
@@ -668,34 +678,6 @@ if (!class_exists('WP_Heimdall_Plugin')) {
         }
 
 
-
-        /**
-         * returns client ip address
-         * @since 1.0.0
-         */
-        private function get_ip_address()
-        {
-
-            foreach (['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'] as $key) {
-
-                if (array_key_exists($key, $_SERVER) === true) {
-
-                    foreach (explode(',', $_SERVER[$key]) as $ip) {
-                        $ip = trim($ip);
-
-                        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
-                            return $ip;
-                        }
-
-                    }
-
-                }
-
-            }
-
-        }
-
-
         /**
          * records client activity
          * @since 1.0.0
@@ -733,7 +715,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
             }
 
-            $ip = $this->get_ip_address();
+            $ip = WP_Heimdall_Commons::get_ip_address();
 
             if($ip == null)
             {
