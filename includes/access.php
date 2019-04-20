@@ -94,8 +94,12 @@ if (!class_exists('WP_Access_Plugin')) {
 
 
             if (empty($ip)) {
+
                 $ip = WP_Heimdall_Commons::get_ip_address();
+
             }
+
+            echo $ip;
 
             if (!isset($list)) {
 
