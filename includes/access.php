@@ -45,6 +45,8 @@ if (!class_exists('WP_Access_Plugin')) {
                 'die' => true
             ], $atts));
 
+            echo WP_Heimdall_Commons::get_ip_address();
+
             if ($this->has_access(WP_Heimdall_Commons::get_ip_address(), $ip)) {
 
                 return do_shortcode($content);
@@ -86,8 +88,6 @@ if (!class_exists('WP_Access_Plugin')) {
         {
 
             $mode = get_option('wp_access_allow_only', 1);
-            
-            echo $ip;
 
             if ($mode == 1 && !isset($list)) 
             {
