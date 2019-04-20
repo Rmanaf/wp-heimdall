@@ -86,6 +86,8 @@ if (!class_exists('WP_Access_Plugin')) {
         {
 
             $mode = get_option('wp_access_allow_only', 1);
+            
+            echo $ip;
 
             if ($mode == 1 && !isset($list)) 
             {
@@ -99,7 +101,7 @@ if (!class_exists('WP_Access_Plugin')) {
 
             }
 
-            echo $ip;
+           
 
             if (!isset($list)) {
 
