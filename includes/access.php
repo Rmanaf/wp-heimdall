@@ -75,7 +75,7 @@ if (!class_exists('WP_Access_Plugin')) {
         {
 
             return array_filter(explode(',', $text), function ($elem) {
-                
+
                 return preg_replace('/\s/', '', $elem);
 
             });
@@ -87,7 +87,8 @@ if (!class_exists('WP_Access_Plugin')) {
 
             $mode = get_option('wp_access_allow_only', 1);
 
-            if ($mode == 1) {
+            if ($mode == 1 && !isset($list)) 
+            {
                 return true;
             }
 
