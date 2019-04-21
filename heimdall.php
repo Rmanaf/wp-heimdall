@@ -70,7 +70,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             $this->check_db();
 
             
-            new WP_Access_Plugin();
+            //new WP_Access_Plugin();
 
 
             add_shortcode('statistics', [$this, 'statistics_shortcode']);
