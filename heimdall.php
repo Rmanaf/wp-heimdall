@@ -22,7 +22,7 @@
     Plugin Name: Heimdall
     Plugin URI: https://wordpress.org/plugins/heimdall
     Description: A simple way to tracking clients activities.
-    Version: 1.1.3
+    Version: 1.2.0
     Author: Arman Afzal
     Author URI: https://github.com/Rmanaf
     License: Apache License, Version 2.0
@@ -75,7 +75,6 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
             add_shortcode('statistics', [$this, 'statistics_shortcode']);
 
-
             add_action('admin_init', [$this, 'admin_init']);
 
             add_action('admin_print_scripts', [$this, 'enqueue_admin_scripts']);
@@ -99,7 +98,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             if(empty($hooks))
             {  
                 $hooks = self::$hit_hooks;
-            }else {
+            } else {
                 $hooks = explode(',' ,  $hooks );
             }
 
@@ -450,7 +449,9 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
             $tag = strtolower(trim($tag));
 
-            return "<$tag data-statistics-value=\"$count\" class=\"$class statistics-$style\">$count</$tag>";
+            $result = "<$tag data-statistics-value=\"$count\" class=\"$class statistics-$style\">$count</$tag>";
+
+            return apply_filters("heimdall_statistics_result" , $result);
 
         }
 

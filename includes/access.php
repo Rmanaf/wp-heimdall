@@ -45,8 +45,6 @@ if (!class_exists('WP_Access_Plugin')) {
                 'die' => true
             ], $atts));
 
-            echo WP_Heimdall_Commons::get_ip_address();
-
             if ($this->has_access(WP_Heimdall_Commons::get_ip_address(), $ip)) {
 
                 return do_shortcode($content);
@@ -87,7 +85,7 @@ if (!class_exists('WP_Access_Plugin')) {
         private function has_access($ip = '', $list = null)
         {
 
-            $mode = get_option('wp_access_allow_only', 1);
+            $mode = get_option('wp_dcp_access_allow_only', 1);
 
             if ($mode == 1 && !isset($list)) 
             {
@@ -105,7 +103,7 @@ if (!class_exists('WP_Access_Plugin')) {
 
             if (!isset($list)) {
 
-                $list = get_option('wp_access_allow_only_list', '');
+                $list = get_option('wp_dcp_access_allow_only_list', '');
 
                 if (empty($list)) {
 
