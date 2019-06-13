@@ -43,7 +43,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
         private static $text_domain = 'heimdall';
 
-        private static $db_version = '1.0.0';
+        private static $db_version = '1.0.1';
 
         private static $content_type = [
             'Undefined',
@@ -597,11 +597,11 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             $charset_collate = $wpdb->get_charset_collate();
 
             $sql = "CREATE TABLE $table_name (
-                id mediumint(9) NOT NULL AUTO_INCREMENT,
-                blog smallint NOT NULL,
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                blog bigint(20) NOT NULL,
                 time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
                 ip tinytext,
-                page smallint,
+                page bigint(20),
                 type smallint,
                 user smallint,
                 hook tinytext,
