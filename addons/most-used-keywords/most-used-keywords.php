@@ -83,8 +83,10 @@ if (!class_exists('WP_Most_Used_Keywords_Plugin')) {
 
             $blog_id = get_current_blog_id();
 
+            $table_name = WP_Heimdall_Plugin::table_name();
+
             return "SELECT COUNT(*) count, meta
-                    FROM $this->table_name
+                    FROM $table_name
                     WHERE type='4' AND blog='$blog_id' AND (time BETWEEN '$start' AND '$end')
                     GROUP BY meta
                     ORDER BY count DESC
