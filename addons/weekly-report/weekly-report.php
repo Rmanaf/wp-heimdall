@@ -47,7 +47,7 @@ if (!class_exists('WP_HeimdallAddon_WeeklyReport')) {
         public function dashboard_statistic_widget()
         {
             ?>
-            <h3><?php _e("Weekly report" , self::$text_domain); ?></h2>
+            <h3><?php _e("Weekly report" , WP_Heimdall_Plugin::$text_domain); ?></h2>
             <div class="chart-container" style="position: relative; width:100%; height:300px;">
                 <canvas id="statisticsChart"></canvas>
             </div>
