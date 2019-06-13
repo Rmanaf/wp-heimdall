@@ -33,7 +33,7 @@ defined('ABSPATH') or die;
 
 require_once __DIR__ . "/includes/commons.php";
 require_once __DIR__ . "/includes/query-builder.php";
-require_once __DIR__ . "/addons/access.php";
+require_once __DIR__ . "/addons/access/access.php";
 
 if (!class_exists('WP_Heimdall_Plugin')) {
 
