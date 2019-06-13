@@ -94,6 +94,6 @@ if (!class_exists('WP_Most_Used_Keywords_Plugin')) {
 
     }
 
-    new WP_Most_Used_Keywords_Plugin();
-
 }
+
+new WP_Most_Used_Keywords_Plugin();
