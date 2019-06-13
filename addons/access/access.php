@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 
-if (!class_exists('WP_Access_Plugin')) {
+if (!class_exists('WP_HeimdallAddon_Access')) {
     
-    class WP_Access_Plugin
+    class WP_HeimdallAddon_Access
     {
 
         public static $_FORBIDDEN_CODE = 403;
@@ -159,6 +159,6 @@ if (!class_exists('WP_Access_Plugin')) {
 
     }
 
-    new WP_Access_Plugin();
-
 }
+
+new WP_HeimdallAddon_Access();
