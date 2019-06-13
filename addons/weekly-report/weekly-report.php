@@ -86,12 +86,14 @@ if (!class_exists('WP_HeimdallAddon_WeeklyReport')) {
             $blog_id = get_current_blog_id();
             $extra_field = is_multisite() ? ", SUM(case when blog='$blog_id' then 1 else 0 end) w" : "";
             
+            $table_name = WP_Heimdall_Plugin::table_name();
+
             return "SELECT WEEKDAY(time) x,
                 COUNT(DISTINCT ip) y,
                 COUNT(*) z,
                 SUM(case when type='1' then 1 else 0 end) p
                 $extra_field
-                FROM $this->table_name
+                FROM $table_name
                 WHERE (time BETWEEN '$start' AND '$end')
                 GROUP BY x";
 
