@@ -48,8 +48,10 @@ if (!class_exists('WP_HeimdallAddon_MostUsedKeywords')) {
         public function dashboard_statistic_widget()
         {
             ?>
-            <h3><?php _e("Most used keywords" , WP_Heimdall_Plugin::$text_domain); ?></h2>
-            <ul id="most-used-keywords" class="tags"></ul>
+            <h3><?php _e("Most Searched Phrases" , WP_Heimdall_Plugin::$text_domain); ?></h2>
+            <ul id="most-used-keywords" class="tags">
+                <li>No phrases found.</li>
+            </ul>
             <hr />
             <?php
         }

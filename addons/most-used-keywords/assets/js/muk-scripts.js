@@ -4,6 +4,11 @@
 
         var $muk =  $('#most-used-keywords')
         
+        if(statistics_data['keywords'].length > 0)
+        {
+            $muk.empty();
+        }
+
         statistics_data['keywords'].forEach((e,i)=>{
 
             var $meta = $('<li>')
