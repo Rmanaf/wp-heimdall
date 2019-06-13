@@ -33,7 +33,7 @@ if (!class_exists('WP_HeimdallAddon_WeeklyReport')) {
 
             add_action("dcp-heimdall--dashboad-statistic-widget" , [$this , "dashboard_statistic_widget"] , 10);
 
-            add_filter("dcp-heimdall--localized-data", [$this , "get_weekly_report_data"], 10, 0);
+            add_filter("dcp-heimdall--localized-data", [$this , "get_weekly_report_data"], 10, 1);
 
         }
 
