@@ -1,17 +1,13 @@
-.tags {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
+.keywords {
+    display: flex;
+    flex-flow: wrap;
 }
-.tags li {
-    float: left; 
-}
-.tag {
+.keywords li {
+    flex-grow: 1;
+    text-align: center;
     background: #eee;
     border-radius: 3px 0 0 3px;
     color: #999;
-    display: inline-block;
     height: 26px;
     line-height: 26px;
     padding: 0 20px 0 23px;
@@ -21,11 +17,11 @@
     -webkit-transition: color 0.2s;
     border-radius: 16px;
 }
-.tag:hover {
+.keywords li:hover {
     background-color: #2196f3;
     color: white;
 }
-.tag i {
+.keywords li i {
     padding: 2px;
     padding-left: 5px;
     padding-right: 5px;
