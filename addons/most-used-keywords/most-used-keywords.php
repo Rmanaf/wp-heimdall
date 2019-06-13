@@ -49,7 +49,7 @@ if (!class_exists('WP_HeimdallAddon_MostUsedKeywords')) {
         {
             ?>
             <h3><?php _e("Most searched phrases" , WP_Heimdall_Plugin::$text_domain); ?></h2>
-            <ul id="most-used-keywords" class="tags">
+            <ul id="most-used-keywords" class="keywords">
                 <li><?php _e("No phrases found." ,WP_Heimdall_Plugin::$text_domain); ?></li>
             </ul>
             <hr />
