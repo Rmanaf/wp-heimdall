@@ -540,12 +540,17 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             if(current_user_can( 'administrator' ) && $screen->id  == 'dashboard' )
             {
 
+                wp_register_script('heimdall-admin-script', '', [], false);
+
+                wp_enqueue_script( 'dcp-chart-js', plugins_url( '/assets/chart.min.js', __FILE__ ), [], $ver, false);
+
                 new WP_Heimdall_Query_Builder(self::table_name());
                 
+
                 wp_enqueue_script( 'dcp-chart-js-bundle', plugins_url( '/assets/chart.bundle.min.js', __FILE__ ), [], $ver, false);
                 wp_enqueue_script( 'dcp-chart-js', plugins_url( '/assets/chart.min.js', __FILE__ ), [], $ver, false);
-       
-                wp_localize_script( 'statistics-admin', 'statistics_data', apply_filters("dcp-heimdall--localized-data" , [
+                wp_enqueue_script( 'heimdall-admin-script' );
+                wp_localize_script( 'heimdall-admin-script', 'statistics_data', apply_filters("dcp-heimdall--localized-data" , [
                     'is_multisite' => is_multisite()
                 ]));
 
