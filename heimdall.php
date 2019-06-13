@@ -697,4 +697,4 @@ $HEIMDALL_PLUGIN_INSTANCE = new WP_Heimdall_Plugin();
 
 require_once __DIR__ . "/addons/access/access.php";
 require_once __DIR__ . "/addons/most-used-keywords/most-used-keywords.php";
-require_once __DIR__ . "/addons/weekly-report/weekly-report.php";
+//require_once __DIR__ . "/addons/weekly-report/weekly-report.php";
