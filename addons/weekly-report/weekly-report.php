@@ -55,7 +55,7 @@ if (!class_exists('WP_HeimdallAddon_WeeklyReport')) {
         }
 
 
-        public function get_weekly_report_data()
+        public function get_weekly_report_data($data)
         {
 
             global $wpdb;
