@@ -39,16 +39,21 @@ if (!class_exists('WP_HeimdallAddon_MostUsedKeywords')) {
         public function admin_enqueue_scripts()
         {
 
-            wp_enqueue_style("muk-styles", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/css/muk-styles.css'), [], self::$version, "all");
+            $screen = get_current_screen();
+
+            if(current_user_can( 'administrator' ) && $screen->id  == 'dashboard' )
+            {
+                wp_enqueue_style("muk-styles", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/css/muk-styles.css'), [], self::$version, "all");
             
-            wp_enqueue_script("muk-script", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/js/muk-scripts.js'), ["jquery"], self::$version , true);
-        
+                wp_enqueue_script("muk-script", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/js/muk-scripts.js'), ["jquery"], self::$version , true);
+            }
+            
         }
 
         public function dashboard_statistic_widget()
         {
             ?>
-            <h3><?php _e("Most searched phrases" , WP_Heimdall_Plugin::$text_domain); ?></h2>
+            <h3><?php _e("Most searched phrases in past week" , WP_Heimdall_Plugin::$text_domain); ?></h2>
             <ul id="most-used-keywords" class="keywords">
                 <li><?php _e("No phrases found." ,WP_Heimdall_Plugin::$text_domain); ?></li>
             </ul>

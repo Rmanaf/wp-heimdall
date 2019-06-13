@@ -4,6 +4,7 @@
 }
 .keywords li {
     flex-grow: 1;
+    overflow: hidden;
     text-align: center;
     background: #eee;
     border-radius: 3px 0 0 3px;
