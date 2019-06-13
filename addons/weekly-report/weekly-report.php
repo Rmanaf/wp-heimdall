@@ -40,7 +40,7 @@ if (!class_exists('WP_HeimdallAddon_WeeklyReport')) {
         public function admin_enqueue_scripts()
         {
 
-            wp_enqueue_script("muk-styles", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/js/statistics-admin.js'), ['jquery'], self::$version, true);
+            wp_enqueue_script("weekly-report", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/js/statistics-admin.js'), ['jquery'], self::$version, true);
 
         }
 
