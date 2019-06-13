@@ -301,15 +301,6 @@ if (!class_exists('WP_Heimdall_Plugin')) {
         public function admin_dashboard_widget()
         {
 
-            ?>
-
-            <h3><?php _e("Weekly report" , self::$text_domain); ?></h2>
-            <div class="chart-container" style="position: relative; width:100%; height:300px;">
-                <canvas id="statisticsChart"></canvas>
-            </div>
-
-            <?php
-
             do_action("dcp-heimdall--dashboad-statistic-widget");
 
         }
@@ -549,26 +540,13 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             if(current_user_can( 'administrator' ) && $screen->id  == 'dashboard' )
             {
 
-                $query_builder = new WP_Heimdall_Query_Builder(self::table_name());
-
-                // get GMT
-                $cdate = current_time( 'mysql' , 1 );
-
-                // start from 6 days ago
-                $start = new DateTime($cdate);
-                $start->sub(new DateInterval('P6D')); 
-
-                // today
-                $end = new DateTime($cdate);
-
+                new WP_Heimdall_Query_Builder(self::table_name());
                 
                 wp_enqueue_script( 'dcp-chart-js-bundle', plugins_url( '/assets/chart.bundle.min.js', __FILE__ ), [], $ver, false);
                 wp_enqueue_script( 'dcp-chart-js', plugins_url( '/assets/chart.min.js', __FILE__ ), [], $ver, false);
-                wp_enqueue_script( 'statistics-admin', plugins_url( '/assets/statistics-admin.js', __FILE__ ), ['jquery'], $ver, true);    
-            
+       
                 wp_localize_script( 'statistics-admin', 'statistics_data', apply_filters("dcp-heimdall--localized-data" , [
-                    'is_multisite' => is_multisite(),
-                    'visitors' => $wpdb->get_results($query_builder->get_chart_query($start , $end), ARRAY_A )
+                    'is_multisite' => is_multisite()
                 ]));
 
                 echo $wpdb->last_error;
@@ -714,3 +692,4 @@ $HEIMDALL_PLUGIN_INSTANCE = new WP_Heimdall_Plugin();
 
 require_once __DIR__ . "/addons/access/access.php";
 require_once __DIR__ . "/addons/most-used-keywords/most-used-keywords.php";
+require_once __DIR__ . "/addons/weekly-report/weekly-report.php";

@@ -119,25 +119,7 @@ if (!class_exists('WP_Heimdall_Query_Builder')) {
         }
 
 
-        public function get_chart_query($start , $end){
-
-            // convert dates to mysql format
-            $start = $start->format('Y-m-d H:i:s');
-            $end   = $end->format('Y-m-d H:i:s');
-
-            $blog_id = get_current_blog_id();
-            $extra_field = is_multisite() ? ", SUM(case when blog='$blog_id' then 1 else 0 end) w" : "";
-            
-            return "SELECT WEEKDAY(time) x,
-                COUNT(DISTINCT ip) y,
-                COUNT(*) z,
-                SUM(case when type='1' then 1 else 0 end) p
-                $extra_field
-                FROM $this->table_name
-                WHERE (time BETWEEN '$start' AND '$end')
-                GROUP BY x";
-
-        }
+       
 
         public function get_query()
         {

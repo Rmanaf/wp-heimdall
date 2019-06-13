@@ -17,44 +17,45 @@
  * limitations under the License.
  */
 
-if (!class_exists('WP_HeimdallAddon_MostUsedKeywords')) {
+ 
+if (!class_exists('WP_HeimdallAddon_WeeklyReport')) {
     
-    class WP_HeimdallAddon_MostUsedKeywords
+    class WP_HeimdallAddon_WeeklyReport
     {
 
         private static $version = "1.0.0";
-        private static $slug = "most-used-keywords";
+        private static $slug = "weekly-report";
 
         function __construct()
         {
-            
+
             add_action("admin_enqueue_scripts", [$this, "admin_enqueue_scripts"]);
 
             add_action("dcp-heimdall--dashboad-statistic-widget" , [$this , "dashboard_statistic_widget"] , 10);
 
-            add_filter("dcp-heimdall--localized-data", [$this , "get_kewords_data"], 10, 1);
+            add_filter("dcp-heimdall--localized-data", [$this , "get_weekly_report_data"], 10, 0);
 
         }
 
         public function admin_enqueue_scripts()
         {
 
-            wp_enqueue_style("muk-styles", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/css/muk-styles.css'), [], self::$version, "all");
-            
-            wp_enqueue_script("muk-script", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/js/muk-scripts.js'), ["jquery"], self::$version , true);
-        
+            wp_enqueue_script("muk-styles", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/statistics-admin.js'), ['jquery'], self::$version, true);
+
         }
 
         public function dashboard_statistic_widget()
         {
             ?>
-            <h3><?php _e("Most used keywords" , WP_Heimdall_Plugin::$text_domain); ?></h2>
-            <ul id="most-used-keywords" class="tags"></ul>
-            <hr />
+            <h3><?php _e("Weekly report" , self::$text_domain); ?></h2>
+            <div class="chart-container" style="position: relative; width:100%; height:300px;">
+                <canvas id="statisticsChart"></canvas>
+            </div>
             <?php
         }
 
-        public function get_kewords_data($data)
+
+        public function get_weekly_report_data()
         {
 
             global $wpdb;
@@ -69,28 +70,30 @@ if (!class_exists('WP_HeimdallAddon_MostUsedKeywords')) {
             // today
             $end = new DateTime($cdate);
 
-            $data['keywords'] = $wpdb->get_results($this->get_most_used_keywords_query($start , $end), ARRAY_A);
+            $data['visitors'] = $wpdb->get_results($this->get_chart_query($start , $end), ARRAY_A );
 
             return $data;
 
         }
 
-        public function get_most_used_keywords_query($start , $end)
+        public function get_chart_query($start , $end)
         {
+
             // convert dates to mysql format
             $start = $start->format('Y-m-d H:i:s');
             $end   = $end->format('Y-m-d H:i:s');
 
             $blog_id = get_current_blog_id();
-
-            $table_name = WP_Heimdall_Plugin::table_name();
-
-            return "SELECT COUNT(*) count, meta
-                    FROM $table_name
-                    WHERE type='4' AND blog='$blog_id' AND (time BETWEEN '$start' AND '$end')
-                    GROUP BY meta
-                    ORDER BY count DESC
-                    LIMIT 20" ;
+            $extra_field = is_multisite() ? ", SUM(case when blog='$blog_id' then 1 else 0 end) w" : "";
+            
+            return "SELECT WEEKDAY(time) x,
+                COUNT(DISTINCT ip) y,
+                COUNT(*) z,
+                SUM(case when type='1' then 1 else 0 end) p
+                $extra_field
+                FROM $this->table_name
+                WHERE (time BETWEEN '$start' AND '$end')
+                GROUP BY x";
 
         }
 
@@ -98,4 +101,5 @@ if (!class_exists('WP_HeimdallAddon_MostUsedKeywords')) {
 
 }
 
-new WP_HeimdallAddon_MostUsedKeywords();
+
+new WP_HeimdallAddon_WeeklyReport();
