@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Apache License, Version 2.0
  * 
@@ -34,7 +33,7 @@ defined('ABSPATH') or die;
 
 require_once __DIR__ . "/includes/commons.php";
 require_once __DIR__ . "/includes/query-builder.php";
-require_once __DIR__ . "/includes/access.php";
+require_once __DIR__ . "/addons/access.php";
 
 if (!class_exists('WP_Heimdall_Plugin')) {
 
@@ -60,18 +59,11 @@ if (!class_exists('WP_Heimdall_Plugin')) {
         private static $styles = [ 'lt-10',  'lt-50', 'lt-100', 'lt-500',  'gt-500',  'gt-1k' , 'gt-5k' , 'em-10k' , 'em-1m' , 'em-5m' ];
 
         private static $hit_hooks = [ 'wp_footer' ];
-
-       
     
         function __construct()
         {
 
-
             $this->check_db();
-
-            
-            //new WP_Access_Plugin();
-
 
             add_shortcode('statistics', [$this, 'statistics_shortcode']);
 
@@ -253,7 +245,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
         }
 
         /**
-         * add statistics shortcode to the content
+         * adds the statistics shortcode to the content
          * @since 1.0.0
          */
         public function filter_content($content)
@@ -287,7 +279,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
 
         /**
-         * add statistics dashboard widget
+         * adds the statistics widget to the dashboard
          * @since 1.0.0
          */
         public function wp_dashboard_setup()
@@ -302,6 +294,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
         }
         
 
+
         /**
          * report widget
          * @since 1.0.0
@@ -311,66 +304,14 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
             ?>
 
-            <style>    
-                .tags {
-                    list-style: none;
-                    margin: 0;
-                    padding: 0;
-                    overflow: hidden;
-                }
-
-                .tags li {
-                    float: left; 
-                }
-
-                .tag {
-                    background: #eee;
-                    border-radius: 3px 0 0 3px;
-                    color: #999;
-                    display: inline-block;
-                    height: 26px;
-                    line-height: 26px;
-                    padding: 0 20px 0 23px;
-                    position: relative;
-                    margin: 0 10px 10px 0;
-                    text-decoration: none;
-                    -webkit-transition: color 0.2s;
-                    border-radius: 16px;
-                }
-
-                .tag:hover {
-                    background-color: #2196f3;
-                    color: white;
-                }
-
-                .tag i {
-                    padding: 2px;
-                    padding-left: 5px;
-                    padding-right: 5px;
-                    background: #607d8b;
-                    color: white;
-                    margin-left: 8px;
-                    margin-right: 4px;
-                    font-size: 10px;
-                    border-radius: 4px;
-                    text-align: center;
-                    text-decoration: none;
-                    font-weight: bold;
-                    font-style: normal;
-                }
-
-            </style>
-
-            <h2><?php _e("Most used keywords" , self::$text_domain); ?></h2>
-            <ul id="most-used-keywords" class="tags"></ul>
-            <hr />
-
-            <h2><?php _e("Weekly report" , self::$text_domain); ?></h2>
+            <h3><?php _e("Weekly report" , self::$text_domain); ?></h2>
             <div class="chart-container" style="position: relative; width:100%; height:300px;">
                 <canvas id="statisticsChart"></canvas>
             </div>
 
             <?php
+
+            do_action("dcp-heimdall--dashboad-statistic-widget");
 
         }
 
@@ -626,11 +567,10 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                 wp_enqueue_script( 'dcp-chart-js', plugins_url( '/assets/chart.min.js', __FILE__ ), [], $ver, false);
                 wp_enqueue_script( 'statistics-admin', plugins_url( '/assets/statistics-admin.js', __FILE__ ), ['jquery'], $ver, true);    
             
-                wp_localize_script( 'statistics-admin', 'statistics_data', [
+                wp_localize_script( 'statistics-admin', 'statistics_data', apply_filters("dcp-heimdall--localized-data" , [
                     'is_multisite' => is_multisite(),
-                    'visitors' => $wpdb->get_results($query_builder->get_chart_query($start , $end), ARRAY_A ),
-                    'keywords' => $wpdb->get_results($query_builder->get_most_used_keywords_query($start , $end), ARRAY_A)
-                ]);
+                    'visitors' => $wpdb->get_results($query_builder->get_chart_query($start , $end), ARRAY_A )
+                ]));
 
                 echo $wpdb->last_error;
 
@@ -750,6 +690,11 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
         }
 
+
+        public static function addon_url($addon , $path)
+        {
+            return plugins_url("/addons/$addon/$path" , __FILE__);
+        }
 
         /**
          * returns plugin version

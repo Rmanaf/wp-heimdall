@@ -118,22 +118,6 @@ if (!class_exists('WP_Heimdall_Query_Builder')) {
 
         }
 
-        public function get_most_used_keywords_query($start , $end)
-        {
-            // convert dates to mysql format
-            $start = $start->format('Y-m-d H:i:s');
-            $end   = $end->format('Y-m-d H:i:s');
-
-            $blog_id = get_current_blog_id();
-
-            return "SELECT COUNT(*) count, meta
-                    FROM $this->table_name
-                    WHERE type='4' AND blog='$blog_id' AND (time BETWEEN '$start' AND '$end')
-                    GROUP BY meta
-                    ORDER BY count DESC
-                    LIMIT 30" ;
-
-        }
 
         public function get_chart_query($start , $end){
 

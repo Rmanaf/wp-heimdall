@@ -1,0 +1,42 @@
+.tags {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.tags li {
+    float: left; 
+}
+.tag {
+    background: #eee;
+    border-radius: 3px 0 0 3px;
+    color: #999;
+    display: inline-block;
+    height: 26px;
+    line-height: 26px;
+    padding: 0 20px 0 23px;
+    position: relative;
+    margin: 0 10px 10px 0;
+    text-decoration: none;
+    -webkit-transition: color 0.2s;
+    border-radius: 16px;
+}
+.tag:hover {
+    background-color: #2196f3;
+    color: white;
+}
+.tag i {
+    padding: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    background: #607d8b;
+    color: white;
+    margin-left: 8px;
+    margin-right: 4px;
+    font-size: 10px;
+    border-radius: 4px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    font-style: normal;
+}

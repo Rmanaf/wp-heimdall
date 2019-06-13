@@ -1,7 +1,9 @@
 <?php
-/*
- * Copyright 2018 Divan Kia Akam <info@divanhub.com>
- *
+/**
+ * Apache License, Version 2.0
+ * 
+ * Copyright (C) 2018 Arman Afzal <rman.afzal@gmail.com>
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,10 +17,8 @@
  * limitations under the License.
  */
 
-
-require_once __DIR__ . "/commons.php";
-
 if (!class_exists('WP_Access_Plugin')) {
+    
     class WP_Access_Plugin
     {
 
@@ -158,4 +158,7 @@ if (!class_exists('WP_Access_Plugin')) {
         }
 
     }
+
+    new WP_Access_Plugin();
+
 }
