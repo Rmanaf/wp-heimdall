@@ -594,11 +594,12 @@ if (!class_exists('WP_Heimdall_Plugin')) {
              * type 3 is post
              * type 4 is search
              */
-            if(is_home()){
+            if(is_home() || is_front_page())
+            {
 
                 $type = 1;
 
-            } else if (is_page()) {
+            } else if (is_page() && !is_front_page()) {
 
                 $page = $post->ID;
 
