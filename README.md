@@ -9,7 +9,7 @@ Once the plugin is activated, navigate to **Settings > General** in your WordPre
 ## Statistics shortcode
 <code>[statistics class='' params='' hook='']</code>
 
-  - The **<code>class</code>** attribute is the CSS class of the container element. The result will be like bellow:
+  - The **<code>class</code>** attribute is the CSS class of the container element. The result will be like below:
     ```html
     <p data-statistics-value="#" class="<specified-class> statistics-$">#</p>
     ```
