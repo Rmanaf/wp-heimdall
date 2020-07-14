@@ -1,20 +1,19 @@
 # Wordpress Heimdall Plugin
-> Current Version [1.3.0](https://github.com/Rmanaf/wp-heimdall)
+> Current Version [1.3.1](https://wordpress.org/plugins/heimdall/)
 
-A simple way to tracking clients activities.
+This plugin is for tracking your client activities.
 
 ## Usage
-By default, the Plugin tracks the **<code>wp_footer</code>** action hook. In the General settings page You can change the action Hooks.
+Once the plugin is activated, navigate to **Settings > General** in your WordPress Dashboard. On the **Heimdall** section, there you can find all the customization options.
 
-The Plugin also adds a new shortcode.
-
+## Statistics shortcode
 <code>[statistics class='' params='' hook='']</code>
 
-  - The **<code>class</code>** attribute is the class of container element. The Shortcode result is:
+  - The **<code>class</code>** attribute is the CSS class of the container element. The result will be like bellow:
     ```html
     <p data-statistics-value="#" class="<specified-class> statistics-$">#</p>
     ```
-    **<code>#</code>** is the number of visitors and **<code>$</code>** is a suffix for an additional class to control the element style according to the Value. You can see the defined extra classes in the following list:
+    **<code>#</code>** is the number of visitors, and **<code>$</code>** is the suffix of the additional CSS class.
     
     | Class | Conditions |
     |---| ---|
@@ -27,23 +26,19 @@ The Plugin also adds a new shortcode.
     | statistics-gt-5k | ~ 5k - 10k |
     | statistics-em-10k | ~ 10k - 1m |
     | statistics-em-1m | ~ 1m - 5m |
-    | statistics-em-5m | Even more than 5 million |
+    | statistics-em-5m | More than 5 million |
 
 
 
-  - The **<code>params</code>** attribute uses for filtering. The following parameters are supported:
+  - The **<code>params</code>** attribute is for filtering the result. The following parameters are supported:
     - **<code>unique</code>** - To get the number of unique visitors.
     - **<code>visitors</code>** - To get current blog visitors.
     - **<code>network</code>** - To get website visitors.
     - **<code>today</code>** - To get records for current date.
 
-    You can pass multiple parameters by using **<code>","</code>** (comma) between them.
+    You can pass multiple parameters by using **<code>","</code>** (comma).
     ```php
     [statistics params='unique,today,visitors']
     ```
 
-  - The **<code>hook</code>** attribute is for filtering by specific action hook.
-
-
-## Bug & Issues Reporting
-If you faced any issues, please tell us on [Github](https://github.com/Rmanaf/wp-heimdall/issues/new)
+  - The **<code>hook</code>** attribute is for filtering the result by a specific action hook.

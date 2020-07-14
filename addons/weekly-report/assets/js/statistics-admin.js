@@ -12,7 +12,7 @@
         var warray = [0,0,0,0,0,0,0];
         var parray = [0,0,0,0,0,0,0];
 
-        statistics_data['visitors'].forEach((e,i)=>{
+        heimdall['visitors'].forEach((e,i)=>{
             var ind = parseInt(e['x']);
             yarray[ind] = parseInt(e['y']);
             zarray[ind] = parseInt(e['z']);
@@ -37,7 +37,7 @@
             data: parray
         }];
 
-        if (statistics_data['is_multisite'] == '1') {
+        if (heimdall['is_multisite'] == '1') {
             dtset.push({
                 label: 'This Blog',
                 backgroundColor: '#fd5a35',
@@ -61,12 +61,17 @@
                     footerFontStyle: 'normal'
                 },
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     xAxes: [{
                         stacked: true,
                     }],
                     yAxes: [{
-                        stacked: true
+                        stacked: true,
+                        ticks: {
+                            beginAtZero: true,
+                            callback: function(value) {if (value % 1 === 0) {return value;}}
+                        }
                     }]
                 }
             }

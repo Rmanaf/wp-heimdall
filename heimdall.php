@@ -1,47 +1,32 @@
 <?php
-/**
- * Apache License, Version 2.0
- * 
- * Copyright (C) 2018 Arman Afzal <rman.afzal@gmail.com>
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
- /*
-    Plugin Name: Heimdall
-    Plugin URI: https://wordpress.org/plugins/heimdall
-    Description: A simple way to tracking clients activities.
-    Version: 1.3.0
-    Author: Arman Afzal
-    Author URI: https://github.com/Rmanaf
-    License: Apache License, Version 2.0
-    Text Domain: heimdall
+/**
+ * Plugin Name: Heimdall
+ * Plugin URI: https://github.com/Rmanaf/wp-heimdall
+ * Description: This plugin is for tracking your client activities.
+ * Version: 1.3.1
+ * Author: Rmanaf
+ * Author URI: https://profiles.wordpress.org/rmanaf/
+ * License: MIT License
+ * License URI: https://github.com/Rmanaf/wp-heimdall/blob/master/LICENSE
+ * Text Domain: heimdall
+ * Domain Path: /languages
  */
 
 
 defined('ABSPATH') or die;
 
 require_once __DIR__ . "/includes/commons.php";
-require_once __DIR__ . "/includes/query-builder.php";
+require_once __DIR__ . "/includes/database.php";
+require_once __DIR__ . "/includes/options.php";
+require_once __DIR__ . "/includes/dashboard.php";
 
 if (!class_exists('WP_Heimdall_Plugin')) {
 
     class WP_Heimdall_Plugin
     {
 
-        public static $text_domain = 'heimdall';
-
-        private static $db_version = '1.0.1';
+        static $version = "1.3.1";
 
         private static $content_type = [
             'Undefined',
@@ -53,649 +38,357 @@ if (!class_exists('WP_Heimdall_Plugin')) {
             'Comment'
         ];
 
-        private static $query_params = ['unique',   'today', 'visitors',  'network' ];
 
-        private static $styles = [ 'lt-10',  'lt-50', 'lt-100', 'lt-500',  'gt-500',  'gt-1k' , 'gt-5k' , 'em-10k' , 'em-1m' , 'em-5m' ];
-
-        private static $hit_hooks = [ 'wp_footer' ];
-    
-        function __construct()
-        {
-
-            $this->check_db();
-
-            add_shortcode('statistics', [$this, 'statistics_shortcode']);
-
-            add_action('admin_init', [$this, 'admin_init']);
-
-            add_action('admin_print_scripts', [$this, 'enqueue_admin_scripts']);
-
-            add_action( "wp_dashboard_setup", [$this, "wp_dashboard_setup"] );
-
-            add_action( 'pre_get_posts', [$this , 'pre_get_posts']);
+        static $hit_hooks = [];
 
 
-            add_filter( "the_content" , [$this , 'filter_content']);
+        private static $addons = [
+            "StatisticsShortcode",
+            "MostUsedKeywords",
+            "WeeklyReport",
+            "Today",
+            "WorldMap"
+        ];
 
-            add_filter( "the_excerpt" , [$this , 'filter_excerpt']);
-
-           
-
-            $hooks = get_option( 'wp_dcp_heimdall_active_hooks', '');
-
-
-           
-
-            if(empty($hooks))
-            {  
-                $hooks = self::$hit_hooks;
-            } else {
-                $hooks = explode(',' ,  $hooks );
-            }
-
-
-            foreach($hooks as $h)
-            {
-                add_action($h, [$this, 'record_activity']);
-            }
-
-
-            /**
-             * DCP hooks
-             */
-            add_action('dcp_settings_before_content', [$this, 'settings_page']);
-
-            add_filter('dcp_shortcodes_list', [$this, 'add_shortcode_to_list']);
-
-        }
 
         /**
-         * register general settings
-         * @since 1.0.0
+         * @since 1.3.1
          */
-        public function admin_init()
+        static function init()
         {
 
-            // checks for control panel plugin 
-            if (defined('DIVAN_CONTROL_PANEL')) {
+            $class = get_called_class();
 
-                global $_DCP_PLUGINS;
+            self::$hit_hooks = explode(',',  get_option('wp_dcp_heimdall_active_hooks', ''));
 
-                // control panel will take setting section
-                $group = 'dcp-settings-general';
 
-                array_push($_DCP_PLUGINS, ['slug' => self::$text_domain, 'version' => $this->get_version()]);
 
-            } else {
+            WP_Heimdall_Database::check_db();
 
-                $group = 'general';
+            WP_Heimdall_Options::init();
 
+            WP_Heimdall_Dashboard::init();
+
+
+
+
+            add_action('admin_print_scripts', "$class::enqueue_admin_scripts");
+
+
+            add_action("wp_enqueue_scripts",  "$class::enqueue_scripts");
+
+
+            add_action('pre_get_posts', "$class::pre_get_posts");
+
+
+            add_filter("the_content", "$class::filter_content");
+
+            add_filter("the_excerpt", "$class::filter_excerpt");
+
+            add_action('plugins_loaded',  "$class::load_plugin_textdomain");
+
+
+
+            foreach (self::$hit_hooks as $h) {
+
+                add_action($h, function () use ($h) {
+
+                    if (did_action($h) > 1) {
+                        return;
+                    }
+
+                    self::record_activity();
+                });
             }
 
-            register_setting($group, 'wp_dcp_heimdall_active_hooks', ['default' => '']);
-            register_setting($group, 'wp_dcp_heimdall_post_position', ['default' => 0]);
-            register_setting($group, 'wp_dcp_heimdall_page_position', ['default' => 0]);
-
-            // settings section
-            add_settings_section(
-                'wp_dcp_heimdall_plugin',
-                __('Heimdall', self::$text_domain) . "<span class=\"gdcp-version-box wp-ui-notification\">" . $this->get_version() . "<span>",
-                [&$this, 'settings_section_cb'],
-                $group
-            );
-
-            add_settings_field(
-                'wp_dcp_heimdall_active_hooks',
-                "Hooks",
-                [&$this, 'settings_field_cb'],
-                $group,
-                'wp_dcp_heimdall_plugin',
-                ['label_for' => 'wp_dcp_heimdall_active_hooks']
-            );
-
-            add_settings_field(
-                'wp_dcp_heimdall_post_position',
-                "The Number of Visitors",
-                [&$this, 'settings_field_cb'],
-                $group,
-                'wp_dcp_heimdall_plugin',
-                ['label_for' => 'wp_dcp_heimdall_post_position']
-            );
-
-            add_settings_field(
-                'wp_dcp_heimdall_page_position',
-                "",
-                [&$this, 'settings_field_cb'],
-                $group,
-                'wp_dcp_heimdall_plugin',
-                ['label_for' => 'wp_dcp_heimdall_page_position']
-            );
-
+            self::activate_addons();
         }
 
-        public function pre_get_posts($query)
+
+        /**
+         * @since 1.3.1
+         */
+        static function load_plugin_textdomain(){
+            load_plugin_textdomain( "heimdall", FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+        }
+
+
+        /**
+         * @since 1.0.0
+         */
+        static function pre_get_posts($query)
         {
 
-            global $wpdb;
-
-            if( is_admin() )
-            {
+            if (is_admin()) {
                 return;
             }
 
-            if ( $query->is_search() && $query->is_main_query()) 
-            {
+            if (did_action("pre_get_posts") > 1) {
+                return;
+            }
+
+
+            if ($query->is_search() && $query->is_main_query()) {
+
+                $keyword = get_search_query();
+
+                // ignore whitespace and empty values
+                if (empty(trim($keyword))) {
+                    return;
+                }
 
                 $ip = WP_Heimdall_Commons::get_ip_address();
 
-                if($ip == null)
-                {
+                if ($ip == null) {
                     $ip = 'unknown';
                 }
 
-                $wpdb->insert(
-                    self::table_name(),
-                    [
-                        'time' => current_time('mysql' , 1),
-                        'ip' => $ip,
-                        'page' => null,
-                        'type' => 4,
-                        'blog' => get_current_blog_id(),
-                        'user' => get_current_user_id(),
-                        'hook' => 'pre_get_posts',
-                        'meta' => esc_html( esc_sql( get_search_query() ) )
-                    ]
-                );
-
-                echo $wpdb->last_error;
-
+                WP_Heimdall_Database::insert_once($ip, null,  4,   'pre_get_posts', $keyword);
             }
-
         }
 
 
         /**
-         * add statistics shortcode to the excerpt
          * @since 1.0.0
          */
-        public function filter_excerpt($excerpt)
+        static function filter_excerpt($excerpt)
         {
 
             $option = '';
 
-            if(is_single()){
+            if (is_single()) {
                 $option = 'wp_dcp_heimdall_post_position';
             }
 
-            if(empty($option))
-            {
+            if (empty($option)) {
                 return $excerpt;
             }
 
             $pos = get_option($option, 0);
 
-            switch($pos){
-                case 3: return $excerpt . "[statistics]" ;
-                case 4: return "[statistics]" . $excerpt ;
+            $value =  apply_filters("heimdall--views-num",  "[statistics]");
+
+            switch ($pos) {
+                case 3:
+                    return $excerpt . $value;
+                case 4:
+                    return $value . $excerpt;
                 default:
                     return $excerpt;
             }
-
         }
 
         /**
-         * adds the statistics shortcode to the content
          * @since 1.0.0
          */
-        public function filter_content($content)
+        static function filter_content($content)
         {
 
             $option = '';
 
-            if(is_page()){
+            if (is_page()) {
                 $option = 'wp_dcp_heimdall_page_position';
             }
 
-            if(is_single()){
+            if (is_single()) {
                 $option = 'wp_dcp_heimdall_post_position';
             }
 
-            if(empty($option))
-            {
+            if (empty($option)) {
                 return $content;
             }
 
             $pos = get_option($option, 0);
 
-            switch($pos){
-                case 1: return $content . "[statistics]" ;
-                case 2: return "[statistics]" . $content ;
+            $value =  apply_filters("heimdall--views-num",  "[statistics]");
+
+            switch ($pos) {
+                case 1:
+                    return $content . $value;
+                case 2:
+                    return $value . $content;
                 default:
                     return $content;
             }
-
         }
 
 
         /**
-         * adds the statistics widget to the dashboard
          * @since 1.0.0
          */
-        public function wp_dashboard_setup()
-        {
-        
-            if(current_user_can( 'administrator' )){
-                
-                wp_add_dashboard_widget('dcp_heimdall_statistics', 'Statistics', [$this,'admin_dashboard_widget']);
-
-            }
-
-        }
-        
-
-
-        /**
-         * report widget
-         * @since 1.0.0
-         */
-        public function admin_dashboard_widget()
+        static function enqueue_scripts()
         {
 
-            do_action("dcp-heimdall--dashboad-statistic-widget");
+            $ver = self::$version;
 
-        }
+            $data =  apply_filters("heimdall--client-script", ['ajaxurl' => admin_url('admin-ajax.php')]);
 
+            wp_register_script("heimdall-client", "", []);
 
-         /**
-         * Add shortcodes to the DCP shortcodes list
-         * @since 1.0.0
-         */
-        public function add_shortcode_to_list($list){
+            wp_localize_script("heimdall-client", "heimdall",  $data);
 
-            $list[] = [
-                'template' => "[statistics class='' params='' hook='']",
-                'description' => __("Renders the number of visitors", self::$text_domain)
-            ];
+            wp_enqueue_script("heimdall-client");
 
-            $list[] = [
-                'template' => "[access ip='' error='' before='' after='' die='']",
-                'description' => __("Restricts access to a page or a part of it according to the client's IP.", self::$text_domain)
-            ];
-
-            return $list;
-
-        }
-
-        /**
-         * statistics shortcode
-         * @since 1.0.0
-         */
-        public function statistics_shortcode($atts = [], $content = null)
-        {
-
-            global $wpdb;
-
-            extract(shortcode_atts( [
-                'class'  => '',
-                'params' => 'unique', // by default get unique IP
-                'hook'  => '',
-                'tag'   => 'p'
-            ], $atts));
-
-            $query_builder = new WP_Heimdall_Query_Builder(
-                self::table_name() , 
-                explode(',', strtolower(trim($params))) ,
-                $hook
-            );
-
-            $count = $wpdb->get_var( $query_builder->get_query() );
-
-            $style = $this->get_style($count);
-
-            $tag = strtolower(trim($tag));
-
-            $result = "<$tag data-statistics-value=\"$count\" class=\"$class statistics-$style\">$count</$tag>";
-
-            return apply_filters("heimdall_statistics_result" , $result);
-
+            wp_enqueue_script("heimdall-client-ajax", plugins_url('/assets/js/client-ajax.js', __FILE__), ["heimdall-client"], $ver, false);
         }
 
 
         /**
-         * settings page content
          * @since 1.0.0
          */
-        public function settings_page()
+        static function enqueue_admin_scripts()
         {
 
-            global $_DCP_ACTIVE_TAB;
-
-            if (defined('DIVAN_CONTROL_PANEL') && $_DCP_ACTIVE_TAB != 'overview') {
-                return;
-            }
-
-            ?> 
-            
-            <h2><?php _e('Settings' , self::$text_domain) ?></h2>
-
-
-            <?php
-
-        }
-
-
-        /**
-         * settings section header
-         * @since 1.0.0
-         */
-        public function settings_section_cb(){
-
-            ?>
-            <table class="form-table">
-                <tbody>
-                    <tr>
-                        <th scope="row">
-                            <label>
-                                <?php _e("Bug & Issues Reporting"); ?>
-                            </label>
-                        </th>
-                        <td>
-                            <?php _e("<p>If you faced any issues, please tell us on <strong><a target=\"_blank\" href=\"https://github.com/Rmanaf/wp-heimdall/issues/new\">Github</a></strong>"); ?>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <?php
-
-        }
-
-
-        /** 
-         * settings section 
-         * @since 1.0.0
-         */
-        public function settings_field_cb($args)
-        {
-            switch ($args['label_for']) {
-
-                case 'wp_dcp_heimdall_active_hooks':
-
-                    $hooks = get_option('wp_dcp_heimdall_active_hooks', implode(',' , self::$hit_hooks));
-
-                    ?>
-                        <textarea data-placeholder="Enter Hooks:" class="large-text code" id="wp_dcp_heimdall_active_hooks" name="wp_dcp_heimdall_active_hooks"><?php echo $hooks; ?></textarea>   
-                    <?php
-                    break;
-
-                case 'wp_dcp_heimdall_page_position':
-                
-                    $pos = get_option('wp_dcp_heimdall_page_position', 0);
-
-                    ?>
-
-                    <span><?php _e('Page', self::$text_domain) ?></span>
-                    
-                    <select name="wp_dcp_heimdall_page_position" id="wp_dcp_heimdall_page_position" >
-                        <option <?php selected( $pos , 0); ?> value="0"> <?php _e('— Do not show —', self::$text_domain); ?>
-                        <option <?php selected( $pos , 1); ?> value="1"> <?php _e('After the Content', self::$text_domain); ?>
-                        <option <?php selected( $pos , 2); ?> value="2"> <?php _e('Before the Content', self::$text_domain); ?>
-                    </select>
-                
-                    <?php
-                    break;
-
-                case 'wp_dcp_heimdall_post_position':
-                
-                    $pos = get_option('wp_dcp_heimdall_post_position', 0);
-
-                    ?>
-
-                    <span><?php _e('Post', self::$text_domain) ?></span>
-
-                    <select name="wp_dcp_heimdall_post_position" id="wp_dcp_heimdall_post_position" >
-                        <option <?php selected( $pos , 0); ?> value="0"> <?php _e('— Do not show —', self::$text_domain); ?>
-                        <option <?php selected( $pos , 1); ?> value="1"> <?php _e('After the Content', self::$text_domain); ?>
-                        <option <?php selected( $pos , 2); ?> value="2"> <?php _e('Before the Content', self::$text_domain); ?>
-                        <option <?php selected( $pos , 3); ?> value="3"> <?php _e('After the Excerpt', self::$text_domain); ?>
-                        <option <?php selected( $pos , 4); ?> value="4"> <?php _e('Before the Excerpt', self::$text_domain); ?>
-                    </select>
-
-                    <?php
-                    break;
-
-            }
-
-        }
-
-
-        /**
-         * returns table name
-         * @since 1.0.0
-         */
-        public static function table_name()
-        {
-
-            return 'dcp_heimdall_activities';
-
-        }
-
-
-        /**
-         * checks if plugin table exists in database
-         * @since 1.0.0
-         */
-        private function check_db()
-        {
-
-            global $wpdb;
-
-            $dbv = get_option('wp_dcp_heimdall_db_version', '');
-
-            if ($dbv == self::$db_version) {
-
-                return;
-
-            }
-
-            $table_name = self::table_name();
-
-            $charset_collate = $wpdb->get_charset_collate();
-
-            $sql = "CREATE TABLE $table_name (
-                id bigint(20) NOT NULL AUTO_INCREMENT,
-                blog bigint(20) NOT NULL,
-                time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-                ip tinytext,
-                page bigint(20),
-                type smallint,
-                user smallint,
-                hook tinytext,
-                meta tinytext,
-                PRIMARY KEY  (id)
-                ) $charset_collate;";
-
-            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-
-            dbDelta($sql);
-
-            update_option('wp_dcp_heimdall_db_version', self::$db_version);
-            
-
-        }
-
-
-        /**
-         * prints admin scripts
-         * @since 1.0.0
-         */
-        public function enqueue_admin_scripts()
-        {
-
-            global $wpdb;
-
-            $ver = $this->get_version();
+            $ver = self::$version;
 
             $screen = get_current_screen();
 
-            if(current_user_can( 'administrator' ) && $screen->id  == 'dashboard' )
-            {
+            if (current_user_can('administrator') && $screen->id  == 'dashboard') {
 
-                wp_register_script('heimdall-admin-script', '', [], false);
+                // tabs
+                wp_enqueue_style("heimdall-tabs", plugins_url('/assets/css/tabs.css', __FILE__), [], $ver, "all");
 
-                wp_enqueue_script( 'dcp-chart-js', plugins_url( '/assets/chart.min.js', __FILE__ ), [], $ver, false);
+                wp_enqueue_script("heimdall-tabs", plugins_url('/assets/js/tabs.js', __FILE__), [], $ver, false);
 
-                new WP_Heimdall_Query_Builder(self::table_name());
-                
 
-                wp_enqueue_script( 'dcp-chart-js-bundle', plugins_url( '/assets/chart.bundle.min.js', __FILE__ ), [], $ver, false);
-                wp_enqueue_script( 'dcp-chart-js', plugins_url( '/assets/chart.min.js', __FILE__ ), [], $ver, false);
-                wp_enqueue_script( 'heimdall-admin-script' );
-                wp_localize_script( 'heimdall-admin-script', 'statistics_data', apply_filters("dcp-heimdall--localized-data" , [
-                    'is_multisite' => is_multisite()
+                // chart.js
+                wp_enqueue_script('dcp-chart-js-bundle', plugins_url('/assets/js/chart.bundle.min.js', __FILE__), [], $ver, false);
+
+
+
+                wp_register_script('heimdall-admin', '', [], false);
+
+                wp_enqueue_script('heimdall-admin');
+
+                wp_localize_script('heimdall-admin', 'heimdall', apply_filters("heimdall--localize-script", [
+                    'is_multisite' => is_multisite(),
+                    'ajaxurl' => admin_url('admin-ajax.php')
                 ]));
-
-                echo $wpdb->last_error;
-
-
             }
-
-            if(in_array($screen->id , ['options-general', 'settings_page_dcp-settings'])){
-
-                //settings
-                wp_enqueue_style('dcp-tag-editor', plugins_url('assets/jquery.tag-editor.css', __FILE__), [], $ver, 'all');
-                wp_enqueue_style('heimdall-settings', plugins_url('assets/heimdall-settings.css', __FILE__), [], $ver, 'all');
-
-                wp_enqueue_script('dcp-caret', plugins_url('assets/jquery.caret.min.js', __FILE__), ['jquery'], $ver, true);
-                wp_enqueue_script('dcp-tag-editor', plugins_url('assets/jquery.tag-editor.min.js', __FILE__), [], $ver, true);
-                wp_enqueue_script('heimdall-settings', plugins_url('assets/heimdall-settings.js', __FILE__), [], $ver, true);
-
-            }
-            
-
         }
 
 
         /**
-         * records client activity
-         * @since 1.0.0
+         * @since 1.3.1
          */
-        public function record_activity()
+        static function get_request_type_page()
         {
 
-            global $wpdb, $post;
+            global $post;
 
             $type = 0;
             $page = null;
 
-            /**
+             /**
              * type 0 is undefined
-             * type 1 is home page
-             * type 2 is inner page
+             * type 1 is homepage
+             * type 2 is page
              * type 3 is post
              * type 4 is search
+             * type 5 is 404
              */
-            if(is_home() || is_front_page())
-            {
-
+            if (is_home() || is_front_page()) {
                 $type = 1;
-
+            } else if (is_404()) {
+                $type = 5;
             } else if (is_page() && !is_front_page()) {
-
                 $page = $post->ID;
-
                 $type = 2;
-
             } else if (is_single()) {
-
                 $page = $post->ID;
-
                 $type = 3;
-
             }
+
+            $type = apply_filters("heimdall--record-type", $type);
+
+            return [
+                "page" => $page,
+                "type" => $type
+            ];
+        }
+
+
+        /**
+         * @since 1.0.0
+         */
+        static function record_activity($type = null, $pid = null)
+        {
+
+            global $wp;
+
+            $type_post_dt = self::get_request_type_page();
 
             $ip = WP_Heimdall_Commons::get_ip_address();
 
-            if($ip == null)
-            {
+            if ($ip == null) {
                 $ip = 'unknown';
             }
 
-            $wpdb->insert(
-                self::table_name(),
-                [
-                    'time' => current_time('mysql' , 1),
-                    'ip' => $ip,
-                    'page' => $page,
-                    'type' => $type,
-                    'blog' => get_current_blog_id(),
-                    'user' => get_current_user_id(),
-                    'hook' => current_filter(),
-                    'meta' => null
-                ]
+            $filter = current_filter();
+
+            $url = add_query_arg($wp->query_vars, home_url($wp->request));
+
+            $metav2 = [];
+
+            if (!empty($ip) && $ip != "unknown") {
+                $metav2["ip"] = $ip;
+            }
+
+            $metav2["url"] = urlencode($url);
+
+            $metav2 = apply_filters("heimdall--record-metadata", $metav2);
+
+            $metav2 = json_encode($metav2, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+            WP_Heimdall_Database::insert_once(
+                $ip,
+                is_null($pid) ?  $type_post_dt["page"] : $pid,
+                is_null($type) ? $type_post_dt["type"] : $type,
+                $filter,
+                $type_post_dt["type"] == 5 ? get_queried_object() : null,
+                $metav2
             );
 
-            echo $wpdb->last_error;
-
-        }
-
-        private function get_style($v){
-
-            $res = 0;
-
-            // lt-50
-            if($v < 50 && $v > 10 ) $res = 1;
-            
-            // lt-100
-            if($v < 100 && $v > 50 ) $res = 2;
-            
-            // lt-500
-            if($v < 500 && $v > 100 )  $res = 3;
-            
-            // gt-500
-            if($v < 1000 && $v > 500 ) $res = 4;
-
-            // gt-1k
-            if($v < 5000 && $v > 1000) $res = 5;
-            
-            // gt-5k
-            if($v < 10000 && $v > 5000) $res = 6;
-            
-            // em-10k
-            if($v < 1000000 && $v > 10000) $res = 7;
-            
-            // em-1m
-            if($v < 5000000 && $v > 1000000) $res = 8;
-            
-            // em-5m
-            if($v > 5000000) $res = 9;
-            
-            return self::$styles[$res];
-
         }
 
 
-        public static function addon_url($addon , $path)
-        {
-            return plugins_url("/addons/$addon/$path" , __FILE__);
-        }
 
         /**
-         * returns plugin version
          * @since 1.0.0
          */
-        private function get_version()
+        static function activate_addons()
         {
 
-            return get_plugin_data(__FILE__)['Version'];
+            $addons_dir = __DIR__ . "/addons";
 
+            foreach (glob("$addons_dir/*", GLOB_ONLYDIR) as $addon) {
+
+                $name = basename($addon);
+
+                $path = path_join($addon, "{$name}.php");
+
+                if (file_exists($path)) {
+
+                    require_once $path;
+                }
+            }
+
+            foreach (self::$addons as $addon) {
+                $class = "WP_HeimdallAddon_" . $addon;
+                $class::init();
+            }
         }
 
-    }
 
+        /**
+         * @since 1.0.0
+         */
+        static function addon_url($addon, $path)
+        {
+            $path = rtrim(ltrim($path, "/"), "/");
+            return plugins_url("/addons/$addon/$path", __FILE__);
+        }
+    }
 }
 
-$HEIMDALL_PLUGIN_INSTANCE = new WP_Heimdall_Plugin();
-
-require_once __DIR__ . "/addons/access/access.php";
-require_once __DIR__ . "/addons/most-used-keywords/most-used-keywords.php";
-require_once __DIR__ . "/addons/weekly-report/weekly-report.php";
+WP_Heimdall_Plugin::init();

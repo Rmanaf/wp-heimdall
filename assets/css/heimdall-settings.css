@@ -10,6 +10,10 @@
     text-decoration: none;
   }
 
+  .rtl .gdcp-version-box {
+    margin-right: 8px;
+  }
+
   .tag-editor .tag-editor-delete i {
     line-height: unset !important;
   }

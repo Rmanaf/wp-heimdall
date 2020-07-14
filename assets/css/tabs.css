@@ -1,0 +1,52 @@
+.hmd-tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+.hmd-tab .hmd-btn {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+}
+
+.hmd-tab .hmd-btn:hover {
+  background-color: #ddd;
+}
+
+.hmd-tab .hmd-btn.active {
+  background-color: #ccc;
+}
+
+.hmd-tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+  -webkit-animation: tabsFadeEffect 1s;
+          animation: tabsFadeEffect 1s;
+}
+
+@-webkit-keyframes tabsFadeEffect {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tabsFadeEffect {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/*# sourceMappingURL=tabs.css.map */

@@ -1,20 +1,8 @@
 <?php
+
 /**
- * Apache License, Version 2.0
- * 
- * Copyright (C) 2018 Arman Afzal <rman.afzal@gmail.com>
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * MIT License <https://github.com/Rmanaf/wp-heimdall/blob/master/LICENSE>
+ * Copyright (c) 2018 Arman Afzal <rman.afzal@gmail.com>
  */
 
 if (!class_exists('WP_HeimdallAddon_MostUsedKeywords')) {
@@ -22,46 +10,61 @@ if (!class_exists('WP_HeimdallAddon_MostUsedKeywords')) {
     class WP_HeimdallAddon_MostUsedKeywords
     {
 
-        private static $version = "1.0.0";
+        // addon slug
         private static $slug = "most-used-keywords";
+        
 
-        function __construct()
+        /**
+         * @since 1.3.1
+         */
+        static function init()
         {
             
-            add_action("admin_enqueue_scripts", [$this, "admin_enqueue_scripts"]);
+            $class = get_called_class();
 
-            add_action("dcp-heimdall--dashboad-statistic-widget" , [$this , "dashboard_statistic_widget"] , 10);
+            add_action("admin_enqueue_scripts", "$class::admin_enqueue_scripts");
 
-            add_filter("dcp-heimdall--localized-data", [$this , "get_kewords_data"], 10, 1);
+            add_action("heimdall--dashboard-statistic-widget" , "$class::dashboard_statistic_widget" , 10);
+
+            add_filter("heimdall--localize-script", "$class::get_kewords_data", 10, 1);
 
         }
 
-        public function admin_enqueue_scripts()
+        /**
+         * @since 1.0.0
+         */
+        static function admin_enqueue_scripts()
         {
 
             $screen = get_current_screen();
 
             if(current_user_can( 'administrator' ) && $screen->id  == 'dashboard' )
             {
-                wp_enqueue_style("muk-styles", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/css/muk-styles.css'), [], self::$version, "all");
+                wp_enqueue_style("muk-styles", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/css/muk-styles.css'), [], WP_Heimdall_Plugin::$version, "all");
             
-                wp_enqueue_script("muk-script", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/js/muk-scripts.js'), ["jquery"], self::$version , true);
+                wp_enqueue_script("muk-script", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/js/muk-scripts.js'), ["jquery"], WP_Heimdall_Plugin::$version , true);
             }
 
         }
 
-        public function dashboard_statistic_widget()
+        /**
+         * @since 1.0.0
+         */
+        static function dashboard_statistic_widget()
         {
             ?>
-            <h3><?php _e("Most searched keywords in the last week" , WP_Heimdall_Plugin::$text_domain); ?></h2>
+            <h3><?php esc_html_e("The Most Searched Terms of the Past 7 Days:" , "heimdall"); ?></h3>
             <ul id="most-used-keywords" class="keywords">
-                <li><?php _e("No phrases found." ,WP_Heimdall_Plugin::$text_domain); ?></li>
+                <li><?php esc_html_e("No terms found." , "heimdall"); ?></li>
             </ul>
-            <hr />
             <?php
         }
 
-        public function get_kewords_data($data)
+
+        /**
+         * @since 1.0.0
+         */
+        static function get_kewords_data($data)
         {
 
             global $wpdb;
@@ -69,20 +72,25 @@ if (!class_exists('WP_HeimdallAddon_MostUsedKeywords')) {
             // get GMT
             $cdate = current_time( 'mysql' , 1 );
 
-            // start from 6 days ago
             $start = new DateTime($cdate);
             $start->sub(new DateInterval('P6D')); 
 
             // today
             $end = new DateTime($cdate);
 
-            $data['keywords'] = $wpdb->get_results($this->get_most_used_keywords_query($start , $end), ARRAY_A);
+            $dt = $wpdb->get_results(self::get_most_used_keywords_query($start , $end), ARRAY_A);
+
+            $data['keywords'] = $dt;
 
             return $data;
 
         }
 
-        public function get_most_used_keywords_query($start , $end)
+
+        /**
+         * @since 1.0.0
+         */
+        static function get_most_used_keywords_query($start , $end)
         {
             // convert dates to mysql format
             $start = $start->format('Y-m-d H:i:s');
@@ -90,11 +98,11 @@ if (!class_exists('WP_HeimdallAddon_MostUsedKeywords')) {
 
             $blog_id = get_current_blog_id();
 
-            $table_name = WP_Heimdall_Plugin::table_name();
+            $table_name = WP_Heimdall_Database::$table_name;
 
             return "SELECT COUNT(*) count, meta
                     FROM $table_name
-                    WHERE type='4' AND blog='$blog_id' AND (time BETWEEN '$start' AND '$end')
+                    WHERE `type`='4' AND `blog`='$blog_id' AND `meta` IS NOT NULL AND (`time` BETWEEN '$start' AND '$end')
                     GROUP BY meta
                     ORDER BY count DESC
                     LIMIT 20" ;
@@ -104,5 +112,3 @@ if (!class_exists('WP_HeimdallAddon_MostUsedKeywords')) {
     }
 
 }
-
-new WP_HeimdallAddon_MostUsedKeywords();
