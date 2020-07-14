@@ -41,7 +41,7 @@ if (!class_exists('WP_HeimdallAddon_WorldMap')) {
 
             global $wpdb;
 
-            $country_code = $data["country_code"];
+            $country_code = $data["country_code"] ?? "unknown";
             
             $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 

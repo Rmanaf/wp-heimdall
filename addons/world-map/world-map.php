@@ -140,11 +140,15 @@ if (!class_exists('WP_HeimdallAddon_WorldMap')) {
 
                 if(empty($ip_data)){
                     $json = file_get_contents("$service/json/$ip");
-                    WP_HeimdallAddon_WorldMap_Database::insert_ip_data($ip , $json);
+
                     $geo = json_decode($json , true);
+
+                    WP_HeimdallAddon_WorldMap_Database::insert_ip_data($ip , $geo);
+                    
                     $metav2['country_code'] = $geo["country_code"];
-                }else{
-                    $geo = json_decode($ip_data['data'], true);
+                } else {
+                    $geo = json_decode($ip_data[0]['data'], true);
+
                     $metav2['country_code'] = $geo["country_code"];
                 }
             }
