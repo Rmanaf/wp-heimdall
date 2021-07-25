@@ -13,12 +13,12 @@ if (!class_exists('WP_Heimdall_Dashboard')) {
         /**
          * @since 1.3.1
          */
-        static function init(){
+        static function init()
+        {
 
             $class = get_called_class();
 
             add_action("wp_dashboard_setup", "$class::wp_dashboard_setup");
-
         }
 
         /**
@@ -34,7 +34,7 @@ if (!class_exists('WP_Heimdall_Dashboard')) {
         }
 
 
-         /**
+        /**
          * @since 1.3.1
          */
         static function admin_dashboard_widget()
@@ -42,45 +42,50 @@ if (!class_exists('WP_Heimdall_Dashboard')) {
 
             do_action("heimdall--dashboard-statistic-widget");
 
-            ?>
-        
+?>
+
             <div class="hmd-tab">
-               <?php do_action( "heimdall--dashboard-statistic-widget-tabs" ); ?>
+                <?php do_action("heimdall--dashboard-statistic-widget-tabs"); ?>
             </div>
 
-            <?php 
-            
-            do_action( "heimdall--dashboard-statistic-widget-tab-content" ); 
+        <?php
+
+            do_action("heimdall--dashboard-statistic-widget-tab-content");
+        }
+
+        /**
+         * @since 1.3.1
+         */
+        static function create_admin_widget_tab($title, $tab_id)
+        {
+
+        ?>
+            <button class="hmd-btn tablinks" data-target="<?php echo $tab_id; ?>"><?php echo $title; ?></button>
+        <?php
 
         }
 
-         /**
+
+
+        /**
          * @since 1.3.1
          */
-        static function create_admin_widget_tab($title , $tab_id){
+        static function create_admin_widget_tab_content($title, $content, $ajax = true)
+        {
 
-            ?>
-                <button class="hmd-btn tablinks" data-target="<?php echo $tab_id; ?>"><?php echo $title; ?></button>
-            <?php
+        ?>
 
-        }
-
-
-
-         /**
-         * @since 1.3.1
-         */
-        static function create_admin_widget_tab_content($title , $content){
-
-            ?>
-            <div id="<?php echo $title; ?>" class="hmd-tabcontent">
+            <div id="<?php echo $title; ?>" class="hmd-tabcontent <?php echo ($ajax ?  'busy' : ''); ?>">
+                <?php if ($ajax) : ?>
+                    <div class="hmd-spinner-container">
+                        <div class="hmd-spinner"></div>
+                    </div>
+                <?php endif; ?>
                 <?php echo $content; ?>
             </div>
-            <?php
-            
+
+        <?php
+
         }
-
-
     }
-
 }

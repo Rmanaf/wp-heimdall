@@ -30,7 +30,9 @@ if (!class_exists('WP_HeimdallAddon_Today')) {
 
             add_action("heimdall--dashboard-statistic-widget-tab-content", "$class::dashboard_statistic_widget_tab_content", 10);
 
-            add_filter("heimdall--localize-script", "$class::get_today_report_data" , 10, 1);
+            //add_filter("heimdall--localize-script", "$class::get_today_report_data" , 10, 1);
+
+            add_action("wp_ajax_heimdall_today_report" , "$class::get_today_report_data");
             
         }
 
@@ -87,9 +89,13 @@ if (!class_exists('WP_HeimdallAddon_Today')) {
         /**
          * @since 1.3.1
          */
-        static function get_today_report_data($data){
+        static function get_today_report_data(){
 
             global $wpdb;
+
+            check_ajax_referer("heimdall-nonce");
+
+            $data = [];
 
             // get GMT
             $cdate = current_time( 'mysql' , 1 );
@@ -105,7 +111,7 @@ if (!class_exists('WP_HeimdallAddon_Today')) {
 
             $data['today_now_hour'] = (new DateTime($cdate))->format('H');
 
-            return $data;
+            wp_send_json_success( $data );
 
         }
 

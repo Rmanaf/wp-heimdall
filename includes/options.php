@@ -35,6 +35,7 @@ if (!class_exists('WP_Heimdall_Options')) {
             $group = 'general';
 
             register_setting($group, 'wp_dcp_heimdall_active_hooks', ['default' => '']);
+            register_setting($group, 'wp_dcp_heimdall_custom_stats', ['default' => '']);
             register_setting($group, 'wp_dcp_heimdall_post_position', ['default' => 0]);
             register_setting($group, 'wp_dcp_heimdall_page_position', ['default' => 0]);
 
@@ -57,6 +58,15 @@ if (!class_exists('WP_Heimdall_Options')) {
                 $group,
                 'wp_dcp_heimdall_plugin',
                 ['label_for' => 'wp_dcp_heimdall_active_hooks']
+            );
+
+            add_settings_field( 
+                'wp_dcp_heimdall_custom_stats',
+                "Custom stats code",
+                "$class::settings_field_cb",
+                $group,
+                'wp_dcp_heimdall_plugin',
+                ['label_for' => 'wp_dcp_heimdall_custom_stats']
             );
 
             add_settings_field(
@@ -119,6 +129,14 @@ if (!class_exists('WP_Heimdall_Options')) {
         static function settings_field_cb($args)
         {
             switch ($args['label_for']) {
+
+                case 'wp_dcp_heimdall_custom_stats':
+
+                    $code = get_option('wp_dcp_heimdall_custom_stats', '' );
+                    ?>
+                    <textarea class="large-text code" id="wp_dcp_heimdall_custom_stats" name="wp_dcp_heimdall_custom_stats"><?php echo $code; ?></textarea>
+                    <?php
+                    break;
 
                 case 'wp_dcp_heimdall_active_hooks':
 

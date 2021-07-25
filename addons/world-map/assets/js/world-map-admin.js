@@ -1,148 +1,217 @@
 ; (($) => {
     "use strict";
 
-    function getX(lon, width)
-    {
-        return (width*(180+lon)/360) % (width + (width/2));
-    }
+    window.WorldMapClass = {
+        data: {},
+        world: null,
+        names: null,
+        width: 532,
+        height: 300,
+        tooltip: {
+            currentCountry: null
+        },
+        init: () => {
 
-    function getY(lat, height, width)
-    {
-        let latRad = lat*Math.PI/180;
-        let mercN = Math.log(Math.tan((Math.PI/4)+(latRad/2)));
-        return (height/2)-(width*mercN/(2*Math.PI));
-    }
+            const _this = window.WorldMapClass;
 
-    function HSVtoRGB(h, s, v) {
-        var r, g, b, i, f, p, q, t;
-        if (arguments.length === 1) {
-            s = h.s, v = h.v, h = h.h;
-        }
-        i = Math.floor(h * 6);
-        f = h * 6 - i;
-        p = v * (1 - s);
-        q = v * (1 - f * s);
-        t = v * (1 - (1 - f) * s);
-        switch (i % 6) {
-            case 0: r = v, g = t, b = p; break;
-            case 1: r = q, g = v, b = p; break;
-            case 2: r = p, g = v, b = t; break;
-            case 3: r = p, g = q, b = v; break;
-            case 4: r = t, g = p, b = v; break;
-            case 5: r = v, g = p, b = q; break;
-        }
-        return {
-            r: Math.round(r * 255),
-            g: Math.round(g * 255),
-            b: Math.round(b * 255)
-        };
-    }
-
-    function updateMapPoints(){
-
-        const container = $("#statisticsWorldMapDataContainer")[0];
-
-        const list = $("#statisticsWorldMapData");
-
-
-        list.empty();
-
-
-
-        const bounds = container.getBoundingClientRect();
-
-        const width = bounds.width - 25;
-
-        const height = bounds.height - 25;
-
-        
-
-
-        heimdall['world_map_data'].forEach((e,i)=>{
-
-            let recs = parseInt(e["records"]);
-
-            if(recs == 0)
-            {
+            if (_this.world != null && _this.names != null) {
+                _this.ready([_this.world, _this.names]);
                 return;
             }
 
-            let max =  parseInt(heimdall['world_map_max']);
+            if (!_this.data.hasOwnProperty('world_map_110m2')) {
+                return;
+            }
 
-            let value = recs / max ;
+            if (_this.world == null) {
+                Promise.all([
+                    d3.json(_this.data["world_map_110m2"]),
+                    d3.csv(_this.data["world_country_names"])
+                ]).then(_this.ready);
+            } else {
+                _this.ready();
+            }
 
-            let scale = 1 + value;
+        },
+        ready: (values) => {
 
-            let minHue = 120 / 255; 
+            const _this = window.WorldMapClass;
+
+            _this.world = values[0];
+
+            _this.names = values[1];
+
+            _this.build();
+
+        },
+        build: (center = [0, 0], rotate = [0, 0], scale = null, translate = null) => {
+
+            const _this = window.WorldMapClass;
+
+            const container = $("#statisticsWorldMapDataContainer");
+
+            _this.width = container.width();
+
+            _this.height = container.height();
+
+            if (scale == null) {
+                scale = [_this.width / 532 * 100]
+            }
+
+            if (translate == null) {
+                translate = [_this.width / 2, _this.height / 2];
+            }
+
+
+
+            $("#statisticsWorldMapDataContainer svg").empty();
+
+
+            var projection = d3.geoNaturalEarth1()
+                .center(center)
+                .rotate(rotate)
+                .scale(scale)
+                .translate(translate);
+
+            var path = d3.geoPath()
+                .projection(projection);
+
+            var svg = d3.select("#statisticsWorldMapDataContainer svg")
+                .append("g");
+
+            var tooltip = d3.select("#statisticsWorldMapDataContainer div.tooltip");
+
+            var countries1 = topojson.feature(_this.world, _this.world.objects.countries);
+
+
+            let countries = countries1.features.filter(function (d) {
+                return _this.names.some(function (n) {
+                    if (d.id == n.id) return d.name = n.name;
+                })
+            });
+
+            svg.selectAll("path")
+                .data(countries)
+                .enter()
+                .append("path")
+                .attr("stroke", "gray")
+                .attr("stroke-width", 1)
+                .attr("fill", function (d) {
+                    return window.WorldMapClass.getColor(d.name);
+                })
+                .attr("d", path)
+                .on("change", function (d) {
+                    d.attr("data-cname", d.name);
+                })
+                .on("mouseover", function (d, i) {
+
+                    //d3.select(this).attr("fill", "grey").attr("stroke-width", 2);
+
+                    const data = _this.data['world_map_data'].find((x => { return x.country_name == d.name }));
+
+                    if (typeof data == "undefined" || data["records"] == 0) {
+                        return tooltip.classed("hidden", true)
+                            .attr("data-cname", d.name);
+                    }
+
+
+                    const hitText = data["records"] <= 1 ? data["records"] + " hit" : data["records"] + " hits";
+
+                    window.WorldMapClass.tooltip.currentCountry = d.name;
+
+                    return tooltip.classed("hidden", false)
+                        .attr("data-cname", d.name)
+                        .html(`${d.name} - ${hitText}`);
+                })
+                .on("mousemove", function (d) {
+
+                    const dm = d3.mouse(this);
+
+                    const cattr = tooltip.attr("data-cname");
+
+                    if (cattr == window.WorldMapClass.tooltip.currentCountry && cattr != null) {
+                        tooltip.classed("hidden", false);
+                    } else {
+                        tooltip.classed("hidden", true);
+                    }
+
+                    tooltip.style("top", (dm[1]) + "px")
+                        .style("left", (dm[0] + 10) + "px");
+
+                })
+                .on("mouseout", function (d, i) {
+                    //d3.select(this).attr("fill", "white").attr("stroke-width", 1);
+                    tooltip.classed("hidden", true);
+                });
+
+            container.parents('.busy').removeClass('busy');
+        },
+        getColor: (name) => {
+
+            const _this = window.WorldMapClass;
+
+            const max = parseInt(_this.data['world_map_max']);
+
+            const data = _this.data['world_map_data'].find((x => { return x.country_name == name }));
+
+            if (typeof data == "undefined") {
+                return "white";
+            }
+
+            const recs = parseInt(data["records"] || 0);
+
+            if (recs == 0) {
+                return "white";
+            }
+
+            let value = recs / max;
+
+            let minHue = 120 / 255;
 
             let maxHue = 0;
 
-            let hue = value*maxHue + (1-value)*minHue; 
+            let hue = value * maxHue + (1 - value) * minHue;
 
-            let color = HSVtoRGB(hue, 1, 1);
+            let color = _this.HSVtoRGB(hue, 1, 1);
 
-            let lat = parseFloat(e["lat"]);
+            return `rgb(${color.r} , ${color.g} , ${color.b})`;
 
-            let lng = parseFloat(e["lng"]);
-
-            let x = getX(lng , width);
-
-            let y = getY(lat, height, width );
-
-            let bgc = `"rgba(${color.r} , ${color.g} , ${color.b} , .5)"`;
-
-            let size = 10 * scale + "px";
-
-            let item = $('<li>').css({
-                left: x + "px",
-                top: y + "px",
-                width: size,
-                height: size,
-                "background-color": bgc
-            });
-
-            let pulse = $("<div>").addClass("pulse").css({
-                width: size,
-                height: size,
-                "background-color": bgc
-            });
-
-            let hitText =  recs <= 1 ? e["records"] + " hit" : e["records"] + " hits";
-
-            let info = $("<p>")
-                .addClass("info")
-                .html(`<strong>${e["country_name"]}</strong> - <span style="color:#aaa">${hitText}</span>`);
-
-            info.append($("<i>").addClass("arrow-down"));
-
-            item.append(pulse , info);
-
-            list.append(item);
-
-
-        });
-
+        },
+        HSVtoRGB: (h, s, v) => {
+            var r, g, b, i, f, p, q, t;
+            i = Math.floor(h * 6);
+            f = h * 6 - i;
+            p = v * (1 - s);
+            q = v * (1 - f * s);
+            t = v * (1 - (1 - f) * s);
+            switch (i % 6) {
+                case 0: r = v, g = t, b = p; break;
+                case 1: r = q, g = v, b = p; break;
+                case 2: r = p, g = v, b = t; break;
+                case 3: r = p, g = q, b = v; break;
+                case 4: r = t, g = p, b = v; break;
+                case 5: r = v, g = p, b = q; break;
+            }
+            return {
+                r: Math.round(r * 255),
+                g: Math.round(g * 255),
+                b: Math.round(b * 255)
+            };
+        }
     }
 
-
-    $(window).on("resize" , function(){
-
-        updateMapPoints();
-
-    });
-
-
-    $(document).on("heimdall--dashboard-tab-is-countries" , function(){
-
-        $(window).trigger("resize");
-
-    });
-
     $(document).ready(() => {
-
-        $(window).trigger("resize");
-
+        $.post(heimdall['ajaxurl'], {
+            'action': 'heimdall_world_map',
+            '_wpnonce': heimdall['ajaxnonce']
+        }, (res) => {
+            WorldMapClass.data = res.data;
+            WorldMapClass.init();
+        });
     });
 
+    $(window).on("resize", WorldMapClass.init);
+
+    $(document).on("heimdall--dashboard-tab-is-countries", WorldMapClass.init);
 
 })(jQuery);

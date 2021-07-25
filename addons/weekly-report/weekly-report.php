@@ -30,7 +30,9 @@ if (!class_exists('WP_HeimdallAddon_WeeklyReport')) {
 
             add_action("heimdall--dashboard-statistic-widget-tab-content", "$class::dashboard_statistic_widget_tab_content", 10);
 
-            add_filter("heimdall--localize-script", "$class::get_weekly_report_data" , 10, 1);
+            //add_filter("heimdall--localize-script", "$class::get_weekly_report_data" , 10, 1);
+
+            add_action("wp_ajax_heimdall_weekly_report" , "$class::get_weekly_report_data");
 
         }
 
@@ -66,7 +68,7 @@ if (!class_exists('WP_HeimdallAddon_WeeklyReport')) {
          */
         static function dashboard_statistic_widget_tabs(){
 
-            WP_Heimdall_Dashboard::create_admin_widget_tab(esc_html__( "Views (7 days)", "heimdall" )   , "views");
+            WP_Heimdall_Dashboard::create_admin_widget_tab(esc_html__( "Visits (7 days)", "heimdall" )   , "views");
 
         }
 
@@ -91,10 +93,12 @@ if (!class_exists('WP_HeimdallAddon_WeeklyReport')) {
         /**
          * @since 1.0.0
          */
-        static function get_weekly_report_data($data)
+        static function get_weekly_report_data()
         {
 
             global $wpdb;
+
+            check_ajax_referer("heimdall-nonce");
 
             // get GMT
             $cdate = current_time( 'mysql' , 1 );
@@ -106,9 +110,9 @@ if (!class_exists('WP_HeimdallAddon_WeeklyReport')) {
             // today
             $end = new DateTime($cdate);
 
-            $data['visitors'] = $wpdb->get_results(self::get_chart_query($start , $end), ARRAY_A );
+            $data = $wpdb->get_results(self::get_chart_query($start , $end), ARRAY_A );
 
-            return $data;
+            wp_send_json_success( $data );
 
         }
 

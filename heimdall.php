@@ -4,7 +4,7 @@
  * Plugin Name: Heimdall
  * Plugin URI: https://github.com/Rmanaf/wp-heimdall
  * Description: This plugin is for tracking your client activities.
- * Version: 1.3.1
+ * Version: 1.3.3
  * Author: Rmanaf
  * Author URI: https://profiles.wordpress.org/rmanaf/
  * License: MIT License
@@ -26,7 +26,7 @@ if (!class_exists('WP_Heimdall_Plugin')) {
     class WP_Heimdall_Plugin
     {
 
-        static $version = "1.3.1";
+        static $version = "1.3.3";
 
         private static $content_type = [
             'Undefined',
@@ -221,7 +221,10 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
             $ver = self::$version;
 
-            $data =  apply_filters("heimdall--client-script", ['ajaxurl' => admin_url('admin-ajax.php')]);
+            $data =  apply_filters("heimdall--client-script", [
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'ajaxnonce' => wp_create_nonce('heimdall-nonce')
+            ]);
 
             wp_register_script("heimdall-client", "", []);
 
@@ -255,6 +258,11 @@ if (!class_exists('WP_Heimdall_Plugin')) {
                 wp_enqueue_script('dcp-chart-js-bundle', plugins_url('/assets/js/chart.bundle.min.js', __FILE__), [], $ver, false);
 
 
+                // d3.js
+                wp_enqueue_script('d3', plugins_url('/assets/js/d3.min.js', __FILE__), [], $ver, false);
+
+
+
 
                 wp_register_script('heimdall-admin', '', [], false);
 
@@ -262,7 +270,8 @@ if (!class_exists('WP_Heimdall_Plugin')) {
 
                 wp_localize_script('heimdall-admin', 'heimdall', apply_filters("heimdall--localize-script", [
                     'is_multisite' => is_multisite(),
-                    'ajaxurl' => admin_url('admin-ajax.php')
+                    'ajaxurl' => admin_url('admin-ajax.php'),
+                    'ajaxnonce' => wp_create_nonce('heimdall-nonce')
                 ]));
             }
         }

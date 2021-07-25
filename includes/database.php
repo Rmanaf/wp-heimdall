@@ -64,6 +64,44 @@ if (!class_exists('WP_Heimdall_Database')) {
             }
         }
 
+        /**
+         * @since 1.3.2
+         */
+        static function get_most_visited_posts_query($params = [] , $limit = 5, $hook = ''){
+
+            global $wpdb;
+
+            $table_name = self::$table_name;
+
+            $records = "COUNT(*)";
+
+            $timeCheck = "";
+
+            $hookCheck = "";
+
+            $limit = esc_sql($limit);
+
+            if (in_array('unique' , $params)) {
+                $records = "COUNT(DISTINCT activity.ip)";
+            }
+
+            if (in_array('today' , $params)) {
+                $timeCheck = "AND DATE(`activity.time`)=CURDATE()";
+            }
+
+            if(!empty($hook)){
+                $hookCheck = esc_sql($hook);
+                $hookCheck = "AND activity.hook = $hook";
+            }
+
+            return "SELECT  post.* , $records AS records FROM `$table_name` AS activity , `$wpdb->posts` AS post
+                        WHERE activity.page = post.ID $timeCheck $hookCheck
+                        GROUP BY post.ID 
+                        ORDER BY `records` DESC 
+                        LIMIT $limit";
+
+        }
+
 
         /**
          * @since 1.3.1

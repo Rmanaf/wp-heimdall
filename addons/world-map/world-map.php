@@ -33,13 +33,13 @@ if (!class_exists('WP_HeimdallAddon_WorldMap')) {
 
             add_action("admin_enqueue_scripts", "$class::admin_enqueue_scripts");
 
-            //add_action("heimdall--dashboard-statistic-widget", "$class::dashboard_statistic_widget", 20);
-
             add_action("heimdall--dashboard-statistic-widget-tabs", "$class::dashboard_statistic_widget_tabs", 10);
 
             add_action("heimdall--dashboard-statistic-widget-tab-content", "$class::dashboard_statistic_widget_tab_content", 10);
 
-            add_filter("heimdall--localize-script", "$class::get_dashboard_world_map_data" , 10, 1);
+            //add_filter("heimdall--localize-script", "$class::get_dashboard_world_map_data" , 10, 1);
+            
+            add_action("wp_ajax_heimdall_world_map" , "$class::get_dashboard_world_map_data");
 
             add_filter("heimdall--record-metadata", "$class::add_country_data");
 
@@ -75,8 +75,8 @@ if (!class_exists('WP_HeimdallAddon_WorldMap')) {
             ?>
 
             <div id="statisticsWorldMapDataContainer" style="position: relative;">
-                <img width="100%" height="auto" src="<?php echo $image; ?>" />
-                <ul id="statisticsWorldMapData"></ul>
+                <svg width="100%" height="400px"></svg>
+                <div class="tooltip"></div>
             </div>
 
             <?php
@@ -97,7 +97,9 @@ if (!class_exists('WP_HeimdallAddon_WorldMap')) {
 
                 wp_enqueue_style("world-map", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/css/world-map-admin.css'), [], WP_Heimdall_Plugin::$version, "all");
                 
-                wp_enqueue_script("world-map", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/js/world-map-admin.js'), ['jquery'], WP_Heimdall_Plugin::$version, true);
+                wp_enqueue_script("topojson", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/js/topojson.min.js'), ['d3'], WP_Heimdall_Plugin::$version, true);
+                
+                wp_enqueue_script("world-map-2", WP_Heimdall_Plugin::addon_url(self::$slug ,  '/assets/js/world-map-admin.js'), ['d3' , 'topojson'], WP_Heimdall_Plugin::$version, true);
 
             }
 
@@ -109,17 +111,25 @@ if (!class_exists('WP_HeimdallAddon_WorldMap')) {
         /**
          * @since 1.3.1
          */
-        static function get_dashboard_world_map_data($data) {
+        static function get_dashboard_world_map_data() {
 
             global $wpdb;
 
+            check_ajax_referer('heimdall-nonce');
+
+            $data = [];
+
             $query = WP_HeimdallAddon_WorldMap_Database::get_world_map_data_query();
+
+            $data["world_map_110m2"] = WP_Heimdall_Plugin::addon_url("world-map","assets/world-110m2.json");
             
+            $data["world_country_names"] = WP_Heimdall_Plugin::addon_url("world-map","assets/world-country-names.csv");
+
             $data["world_map_data"] = $wpdb->get_results($query , ARRAY_A);
 
             $data["world_map_max"] = max(array_map(function($o){return $o["records"];}, $data["world_map_data"]));
 
-            return $data;
+            wp_send_json_success( $data );
 
         }
 
@@ -139,17 +149,27 @@ if (!class_exists('WP_HeimdallAddon_WorldMap')) {
                 $ip_data = self::get_ip_data($ip);
 
                 if(empty($ip_data)){
-                    $json = file_get_contents("$service/json/$ip");
 
-                    $geo = json_decode($json , true);
+                    $response = wp_remote_get("$service/json/$ip");
 
-                    WP_HeimdallAddon_WorldMap_Database::insert_ip_data($ip , $geo);
+                    if(is_wp_error( $response )){
+                        return $metav2;
+                    }
+
+                    $json = wp_remote_retrieve_body($response);
+
+                    $data = json_decode($json , true);
+
+                    WP_HeimdallAddon_WorldMap_Database::insert_ip_data($ip , $data);
                     
-                    $metav2['country_code'] = $geo["country_code"];
+                    $metav2['country_code'] = $data["country_code"];
+
                 } else {
+
                     $geo = json_decode($ip_data[0]['data'], true);
 
                     $metav2['country_code'] = $geo["country_code"];
+
                 }
             }
 

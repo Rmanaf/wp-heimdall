@@ -2,8 +2,8 @@
 Contributors: rmanaf
 Tags: statistics, stat, heimdall
 Requires at least: 4.5.0
-Tested up to: 5.4.2
-Stable tag: 1.3.1
+Tested up to: 5.8.0
+Stable tag: 1.3.3
 License: MIT License
 License URI: https://github.com/Rmanaf/wp-heimdall/blob/master/LICENSE
 
